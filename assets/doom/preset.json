@@ -33,5 +33,13 @@
     { "key": "doom.meme4", "anim": "Meme13" },
     { "key": "doom.meme5", "anim": "Meme16" },
     { "key": "doom.meme6", "anim": "Meme19" }
-  ]
+  ],
+  "poke": [
+    { "key": "doom.poke1", "anim": "Angry" },
+    { "key": "doom.poke2", "anim": "Scream" },
+    { "key": "doom.poke3", "anim": "Grin" }
+  ],
+  "pokeMad": { "key": "doom.pokeMad", "anim": "Rage" },
+  "sleep": { "anim": "Idle" },
+  "wake": { "anim": "Wake" }
 }

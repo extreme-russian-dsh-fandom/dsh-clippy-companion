@@ -36,8 +36,12 @@ changes (sidebar collapse, right panel, window resize, composer growth).
   shows up at random between idle animations.
 - **Animated.** Idle loops, a greeting on load, and a reaction for every
   comment, all played at the frame durations declared by the sprite manifest.
-- **Talkative.** Click the companion (or press Enter while it has focus) to get
-  a short comment in a themed speech bubble.
+- **Pokeable.** Click the companion (or press Enter while it has focus) for a
+  short comment in a themed speech bubble. Keep poking and it gets annoyed; a
+  double-click throws one of the pack's meme faces instead.
+- **Naps.** After five quiet minutes it dozes off with a `Zzz` bubble, swapping
+  to the pack's sleep animation where one exists. Any turn activity, click,
+  keypress or comment wakes it with the pack's wake-up animation.
 - **Keyboard accessible.** Focus the companion with Tab, move it with the arrow
   keys (hold Shift for bigger steps), speak with Enter or Space, open the preset
   menu with the Menu key or Shift+F10, dismiss with Escape.
@@ -108,7 +112,11 @@ assets/<pack>/
   "greeting": "Greeting",
   "rest": "RestPose",
   "idle": ["Idle1_1", "LookLeft", "..."],
-  "speech": [{ "key": "clippy.line1", "anim": "Thinking" }]
+  "speech": [{ "key": "clippy.line1", "anim": "Thinking" }],
+  "poke": [{ "key": "clippy.poke1", "anim": "Hearing_1" }],
+  "pokeMad": { "key": "clippy.pokeMad", "anim": "Alert" },
+  "sleep": { "anim": "IdleSnooze" },
+  "wake": { "anim": "Hearing_1" }
 }
 ```
 
@@ -121,7 +129,11 @@ assets/<pack>/
   fallback, `idle` is sampled at random between pauses, and `speech` maps a
   locale key to a reaction animation.
 - Optional `memeIdle` (animation names) and `memeChance` (0–1) make an idle loop
-  occasionally show a random joke face instead of the regular idle set.
+  occasionally show a random joke face instead of the regular idle set; the same
+  list feeds the double-click meme burst.
+- Optional `poke` (a list of `{ key, anim }`) answers a click, `pokeMad` answers
+  the third poke in a row, and `sleep` / `wake` name the dozing and waking
+  animations. Missing entries fall back to compatible animations from the pack.
 - Damage variants are ordinary manifest animations suffixed by tier:
   `Angry`, `AngryHurt`, `AngryBad`. The client prefers the highest tier that
   exists for the requested base name.

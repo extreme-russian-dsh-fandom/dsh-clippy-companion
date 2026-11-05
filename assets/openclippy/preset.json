@@ -44,5 +44,13 @@
     { "key": "clippy.line18", "anim": "Print" },
     { "key": "clippy.line19", "anim": "SendMail" },
     { "key": "clippy.line20", "anim": "Wave" }
-  ]
+  ],
+  "poke": [
+    { "key": "clippy.poke1", "anim": "Hearing_1" },
+    { "key": "clippy.poke2", "anim": "Alert" },
+    { "key": "clippy.poke3", "anim": "GetAttention" }
+  ],
+  "pokeMad": { "key": "clippy.pokeMad", "anim": "Alert" },
+  "sleep": { "anim": "IdleSnooze" },
+  "wake": { "anim": "Hearing_1" }
 }

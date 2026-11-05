@@ -9,6 +9,10 @@ window.__ModuleLoader__.load({
     const TOP_INSET = 56;
     const BUBBLE_MS = 7000;
     const LONG_PRESS_MS = 550;
+    const SLEEP_MS = 5 * 60 * 1000;
+    const POKE_WINDOW_MS = 2200;
+    const POKE_BUBBLE_MS = 4600;
+    const DOUBLE_TAP_MS = 240;
     const ASSET_BASE = '/clippy-companion/assets/';
     const STORAGE_POSITION = 'dsh.clippy-companion.position.v1';
     const STORAGE_PRESET = 'dsh.clippy-companion.preset.v1';
@@ -23,7 +27,9 @@ window.__ModuleLoader__.load({
     const DICTS = {
       en: {
         aria: 'Companion. Drag to move. Press Enter for a comment.',
+        ariaAsleep: 'Companion, asleep. Press Enter to wake.',
         hint: 'Drag me — or press Enter to chat',
+        hintAsleep: 'Zzz — click to wake me',
         menuTitle: 'Companion',
         menuAria: 'Choose a companion',
         settingsTitle: 'Companion',
@@ -68,10 +74,21 @@ window.__ModuleLoader__.load({
         'doom.meme4': 'I cannot see the bug. The bug cannot see me.',
         'doom.meme5': 'The context window is a lie.',
         'doom.meme6': 'I brought a pumpkin to the code review.',
+        'clippy.poke1': "Hey — I'm a paperclip, not a button.",
+        'clippy.poke2': 'That tickles. Please stop.',
+        'clippy.poke3': "Poke me once more and I'm filing a bug report.",
+        'clippy.pokeMad': "That's it. I'm telling the user.",
+        'doom.poke1': 'Poke me again. See what happens.',
+        'doom.poke2': 'You want a piece of me?',
+        'doom.poke3': 'Keep poking. It only feeds the rage.',
+        'doom.pokeMad': 'That was your last poke.',
+        'sleep.z': 'Zzz…',
       },
       ru: {
         aria: 'Компаньон. Перетащите, чтобы переместить. Нажмите Enter для комментария.',
+        ariaAsleep: 'Компаньон спит. Нажмите Enter, чтобы разбудить.',
         hint: 'Перетащите меня — или нажмите Enter',
+        hintAsleep: 'Zzz — нажмите, чтобы разбудить',
         menuTitle: 'Компаньон',
         menuAria: 'Выберите компаньона',
         settingsTitle: 'Компаньон',
@@ -116,6 +133,15 @@ window.__ModuleLoader__.load({
         'doom.meme4': 'Я не вижу баг. Баг не видит меня.',
         'doom.meme5': 'Контекстное окно лжёт.',
         'doom.meme6': 'Я принёс тыкву на код-ревью.',
+        'clippy.poke1': 'Эй, я скрепка, а не кнопка.',
+        'clippy.poke2': 'Щекотно. Прекратите.',
+        'clippy.poke3': 'Ещё раз — и я напишу баг-репорт.',
+        'clippy.pokeMad': 'Всё. Я всё расскажу пользователю.',
+        'doom.poke1': 'Ткни ещё. Посмотрим, что будет.',
+        'doom.poke2': 'Хочешь кусок меня?',
+        'doom.poke3': 'Тыкай дальше. Это только кормит ярость.',
+        'doom.pokeMad': 'Это был твой последний тык.',
+        'sleep.z': 'Zzz…',
       },
     };
 
@@ -126,6 +152,7 @@ window.__ModuleLoader__.load({
 .dscc-button:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#247bbf);outline-offset:4px}
 .dscc-sprite{background-repeat:no-repeat;filter:drop-shadow(0 7px 11px rgba(0,0,0,.22));transition:transform 120ms ease,filter 120ms ease}
 .dscc-button:hover .dscc-sprite{transform:translateY(-1px);filter:drop-shadow(0 10px 14px rgba(0,0,0,.26))}
+.dscc-root[data-pressed="true"] .dscc-sprite{transform:translateY(1px) scale(.94);filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
 .dscc-bubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(260px,calc(100vw - 32px));padding:9px 12px;border:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-radius:12px;background:var(--dsw-alias-bg-overlay,#fff);color:var(--dsw-alias-label-primary,#1b1b1d);box-shadow:0 10px 28px rgba(0,0,0,.22);font-family:var(--dsh-font-family-text,system-ui,-apple-system,"Segoe UI",sans-serif);font-size:12.5px;line-height:18px;text-align:left;pointer-events:auto;cursor:default}
 .dscc-bubbleBelow{top:calc(100% + 14px);bottom:auto}
 .dscc-tail{position:absolute;left:50%;bottom:-6px;width:12px;height:12px;margin-left:-6px;transform:rotate(45deg);background:var(--dsw-alias-bg-overlay,#fff);border-right:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-bottom:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16))}
@@ -669,6 +696,7 @@ window.__ModuleLoader__.load({
       const [flash, setFlash] = React.useState(null);
       const [menuOpen, setMenuOpen] = React.useState(false);
       const [dragging, setDragging] = React.useState(false);
+      const [asleep, setAsleep] = React.useState(false);
       const [fraction, setFractionState] = React.useState(
         () => readFraction() || { fx: 1, fy: 0.92 },
       );
@@ -692,7 +720,12 @@ window.__ModuleLoader__.load({
       activityNameRef.current = activityName;
       const specRef = React.useRef(null);
       const dragRef = React.useRef(null);
-      const timersRef = React.useRef({ idle: 0, bubble: 0, flash: 0 });
+      const timersRef = React.useRef({ idle: 0, bubble: 0, flash: 0, sleep: 0, poke: 0 });
+      const asleepRef = React.useRef(false);
+      const lineRef = React.useRef(null);
+      const menuOpenRef = React.useRef(false);
+      const pokeRef = React.useRef({ at: 0, count: 0 });
+      const lastPressRef = React.useRef(0);
       const geoRef = React.useRef(null);
       const buttonRef = React.useRef(null);
       const menuRef = React.useRef(null);
@@ -700,6 +733,8 @@ window.__ModuleLoader__.load({
       const lastResultSeqRef = React.useRef(null);
       const resultBaselineRef = React.useRef(false);
       specRef.current = spec;
+      lineRef.current = line;
+      menuOpenRef.current = menuOpen;
 
       const setFraction = (next) => {
         fractionRef.current = next;
@@ -740,10 +775,16 @@ window.__ModuleLoader__.load({
         if (!assets) return;
         clearTimer('idle');
         clearTimer('bubble');
+        clearTimer('sleep');
+        clearTimer('poke');
+        asleepRef.current = false;
+        setAsleep(false);
         setMenuOpen(false);
         setLine(null);
         setSpec(null);
         phaseRef.current = 'idle';
+        pokeRef.current = { at: 0, count: 0 };
+        lastPressRef.current = 0;
 
         const animations = assets.manifest.animations;
         const restBase =
@@ -769,6 +810,7 @@ window.__ModuleLoader__.load({
         } else {
           scheduleIdle(400);
         }
+        armSleep();
       }, [assets, reducedMotion]);
 
       React.useEffect(
@@ -776,6 +818,8 @@ window.__ModuleLoader__.load({
           clearTimer('idle');
           clearTimer('bubble');
           clearTimer('flash');
+          clearTimer('sleep');
+          clearTimer('poke');
         },
         [],
       );
@@ -833,6 +877,172 @@ window.__ModuleLoader__.load({
         setSpec({ name, token: ++tokenRef.current });
       };
 
+      const say = (entry, duration) => {
+        if (!entry || typeof entry.key !== 'string') return false;
+        clearTimer('bubble');
+        lineTokenRef.current += 1;
+        setLine({ key: entry.key, text: translate(entry.key) });
+        timersRef.current.bubble = window.setTimeout(
+          () => setLine(null),
+          duration || BUBBLE_MS,
+        );
+        return true;
+      };
+
+      const reactWith = (base) => {
+        if (!base || !assets) return false;
+        clearTimer('idle');
+        phaseRef.current = 'react';
+        setSpec({
+          name: resolveAnimationName(assets.manifest, base, tierRef.current),
+          token: ++tokenRef.current,
+        });
+        return true;
+      };
+
+      const armSleep = () => {
+        clearTimer('sleep');
+        if (reducedMotion || !assets || asleepRef.current) return;
+        timersRef.current.sleep = window.setTimeout(() => {
+          if (!assets || asleepRef.current) return;
+          if (dragRef.current || menuOpenRef.current || lineRef.current) {
+            armSleep();
+            return;
+          }
+          if (
+            activityNameRef.current ||
+            phaseRef.current === 'activity' ||
+            phaseRef.current === 'flash' ||
+            phaseRef.current === 'react' ||
+            phaseRef.current === 'intro'
+          ) {
+            armSleep();
+            return;
+          }
+          enterSleep();
+        }, SLEEP_MS);
+      };
+
+      const enterSleep = () => {
+        if (!assets || asleepRef.current) return;
+        clearTimer('idle');
+        clearTimer('bubble');
+        const sleepEntry = assets.config.sleep;
+        const base =
+          sleepEntry && typeof sleepEntry.anim === 'string' ? sleepEntry.anim : null;
+        const name =
+          base && assets.manifest.animations[base]
+            ? resolveAnimationName(assets.manifest, base, tierRef.current)
+            : null;
+        asleepRef.current = true;
+        setAsleep(true);
+        phaseRef.current = 'sleep';
+        if (name) setSpec({ name, token: ++tokenRef.current });
+        lineTokenRef.current += 1;
+        setLine({ key: 'sleep.z', text: translate('sleep.z'), sleep: true });
+      };
+
+      const wake = () => {
+        if (!asleepRef.current) return;
+        asleepRef.current = false;
+        setAsleep(false);
+        setLine((current) => (current && current.sleep ? null : current));
+        clearTimer('sleep');
+        clearTimer('bubble');
+        if (!assets) return;
+        const wakeEntry = assets.config.wake;
+        const base =
+          wakeEntry && typeof wakeEntry.anim === 'string' && assets.manifest.animations[wakeEntry.anim]
+            ? wakeEntry.anim
+            : firstAnimation(assets.manifest, ['Wake', 'Hearing_1', 'GetAttention', 'Alert']);
+        if (base && !reducedMotion) {
+          reactWith(base);
+        } else if (activityNameRef.current) {
+          beginActivity(activityNameRef.current);
+        } else {
+          phaseRef.current = 'idle';
+          scheduleIdle(600);
+        }
+        armSleep();
+      };
+
+      const pokeReaction = () => {
+        if (!assets) return;
+        const now = Date.now();
+        if (now - pokeRef.current.at < POKE_WINDOW_MS) pokeRef.current.count += 1;
+        else pokeRef.current.count = 1;
+        pokeRef.current.at = now;
+
+        if (pokeRef.current.count >= 3) {
+          const mad = assets.config.pokeMad;
+          if (mad && typeof mad.anim === 'string' && reactWith(mad.anim)) {
+            say(mad, POKE_BUBBLE_MS);
+            armSleep();
+            return;
+          }
+        }
+        const entries = Array.isArray(assets.config.poke)
+          ? assets.config.poke.filter(
+              (entry) =>
+                entry &&
+                typeof entry.key === 'string' &&
+                typeof entry.anim === 'string' &&
+                assets.manifest.animations[entry.anim],
+            )
+          : [];
+        if (!entries.length) {
+          speak();
+          return;
+        }
+        const entry = entries[Math.floor(Math.random() * entries.length)];
+        reactWith(entry.anim);
+        say(entry, POKE_BUBBLE_MS);
+        armSleep();
+      };
+
+      /** A double press skips the poke and throws a meme face instead. */
+      const memeBurst = () => {
+        if (!assets) return;
+        if (asleepRef.current) wake();
+        const animations = assets.manifest.animations;
+        const named = Object.keys(animations).filter((name) => /^Meme\d+/.test(name));
+        const memes = (Array.isArray(assets.config.memeIdle)
+          ? assets.config.memeIdle
+          : named
+        ).filter((name) => animations[name]);
+        if (!memes.length) {
+          speak();
+          return;
+        }
+        const base = memes[Math.floor(Math.random() * memes.length)];
+        reactWith(base);
+        const entries = Array.isArray(assets.config.speech)
+          ? assets.config.speech.filter(
+              (entry) => entry && typeof entry.key === 'string' && /\.meme\d+$/.test(entry.key),
+            )
+          : [];
+        if (entries.length) say(entries[Math.floor(Math.random() * entries.length)], POKE_BUBBLE_MS);
+        else clearTimer('bubble');
+        armSleep();
+      };
+
+      const poke = () => {
+        if (!assets) return;
+        clearTimer('poke');
+        if (asleepRef.current) {
+          wake();
+          return;
+        }
+        const now = Date.now();
+        if (now - lastPressRef.current < DOUBLE_TAP_MS) {
+          lastPressRef.current = 0;
+          memeBurst();
+          return;
+        }
+        lastPressRef.current = now;
+        timersRef.current.poke = window.setTimeout(pokeReaction, DOUBLE_TAP_MS);
+      };
+
       const handleAnimationEnd = () => {
         if (phaseRef.current === 'react') {
           phaseRef.current = 'idle';
@@ -851,6 +1061,13 @@ window.__ModuleLoader__.load({
           }
         } else if (phaseRef.current === 'flash') {
           /* the flash timer decides what comes next */
+        } else if (phaseRef.current === 'sleep') {
+          if (asleepRef.current && specRef.current) {
+            setSpec({ name: specRef.current.name, token: ++tokenRef.current });
+          } else {
+            phaseRef.current = 'idle';
+            scheduleIdle(1200);
+          }
         } else {
           scheduleIdle(1200 + Math.random() * 2600);
         }
@@ -912,6 +1129,14 @@ window.__ModuleLoader__.load({
       }, [activity.running, activity.waiting]);
 
       React.useEffect(() => {
+        if (!assets) return;
+        const busy = !!(activity.running || activity.waiting || activity.toolName || activityName);
+        if (!busy) return;
+        armSleep();
+        if (asleepRef.current) wake();
+      }, [assets, activity.running, activity.waiting, activity.toolName, activityName]);
+
+      React.useEffect(() => {
         if (!assets || flash || reducedMotion) return;
         if (!activityName) {
           if (phaseRef.current === 'activity' || phaseRef.current === 'flash') {
@@ -951,6 +1176,7 @@ window.__ModuleLoader__.load({
         lineTokenRef.current += 1;
         setLine({ key: entry.key, text: translate(entry.key) });
         timersRef.current.bubble = window.setTimeout(() => setLine(null), BUBBLE_MS);
+        armSleep();
       };
 
       const moveBy = (dx, dy) => {
@@ -989,6 +1215,7 @@ window.__ModuleLoader__.load({
       const frame = frames.length ? frames[Math.min(frameIndex, frames.length - 1)] : null;
 
       const openMenu = () => {
+        if (asleepRef.current) wake();
         setLine(null);
         setMenuOpen(true);
       };
@@ -1019,6 +1246,8 @@ window.__ModuleLoader__.load({
         }
         dragRef.current = drag;
         setDragging(true);
+        if (asleepRef.current) wake();
+        armSleep();
         try {
           button.focus({ preventScroll: true });
         } catch (error) {
@@ -1066,7 +1295,7 @@ window.__ModuleLoader__.load({
         if (drag.moved) {
           persistFraction(fractionRef.current);
         } else if (!drag.suppressClick) {
-          speak();
+          poke();
         }
       };
 
@@ -1090,16 +1319,17 @@ window.__ModuleLoader__.load({
         }
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          speak();
+          if (asleepRef.current) wake();
+          else speak();
           return;
         }
         if (event.key === 'Escape') {
           if (menuOpen) setMenuOpen(false);
-          else setLine(null);
+          else if (!asleepRef.current) setLine(null);
         }
       };
 
-      const hint = translate('hint');
+      const hint = translate(asleep ? 'hintAsleep' : 'hint');
       const bubbleBelow = y - bounds.top < 120;
       const bubbleStyle = {};
       const halfWidth = width / 2;
@@ -1173,6 +1403,8 @@ window.__ModuleLoader__.load({
         {
           className: 'dscc-root',
           'data-dragging': dragging ? 'true' : 'false',
+          'data-pressed': dragging ? 'true' : 'false',
+          'data-asleep': asleep ? 'true' : 'false',
           style: {
             left: Math.round(x) + 'px',
             top: Math.round(y) + 'px',
@@ -1188,7 +1420,7 @@ window.__ModuleLoader__.load({
               ref: buttonRef,
               type: 'button',
               className: 'dscc-button',
-              'aria-label': translate('aria'),
+              'aria-label': translate(asleep ? 'ariaAsleep' : 'aria'),
               'aria-haspopup': 'menu',
               'aria-expanded': menuOpen ? 'true' : 'false',
               title: hint,
@@ -1232,7 +1464,10 @@ window.__ModuleLoader__.load({
                   style: bubbleStyle,
                   role: 'status',
                   'aria-live': 'polite',
-                  onClick: () => setLine(null),
+                  onClick: () => {
+                    if (asleepRef.current) wake();
+                    else setLine(null);
+                  },
                 },
                 line.text,
                 h('span', {
