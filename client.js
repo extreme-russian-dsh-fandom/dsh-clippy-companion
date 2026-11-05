@@ -860,14 +860,22 @@ window.__ModuleLoader__.load({
       const hint = translate('hint');
       const bubbleBelow = y - bounds.top < 120;
       const bubbleStyle = {};
-      const center = x + width / 2;
+      const halfWidth = width / 2;
+      const center = x + halfWidth;
+      // Keep the tail on the sprite's centre even when the bubble is clamped to
+      // a chat-column edge and no longer centred on the sprite.
+      let tailLeft = '50%';
       if (center + 140 > bounds.right - 4) {
         bubbleStyle.left = 'auto';
         bubbleStyle.right = '0px';
         bubbleStyle.transform = 'none';
+        bubbleStyle.minWidth = Math.ceil(halfWidth + 24) + 'px';
+        tailLeft = 'max(12px, calc(100% - ' + halfWidth + 'px))';
       } else if (center - 140 < bounds.left + 4) {
         bubbleStyle.left = '0px';
         bubbleStyle.transform = 'none';
+        bubbleStyle.minWidth = Math.ceil(halfWidth + 24) + 'px';
+        tailLeft = 'min(calc(100% - 12px), ' + halfWidth + 'px)';
       }
 
       const menuWidth = 210;
@@ -985,7 +993,12 @@ window.__ModuleLoader__.load({
                   onClick: () => setLine(null),
                 },
                 line.text,
-                h('span', { key: 'tail', className: 'dscc-tail', 'aria-hidden': 'true' }),
+                h('span', {
+                  key: 'tail',
+                  className: 'dscc-tail',
+                  style: { left: tailLeft },
+                  'aria-hidden': 'true',
+                }),
               )
             : null,
           menu,
