@@ -1,16 +1,18 @@
 {
   "name": "@local/dsh-clippy-companion",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
-  "description": "A draggable Clippy companion inside the DSH chat area, animated with the OpenClippy sprite sheet.",
+  "description": "A draggable companion inside the DSH chat area with switchable sprite packs (OpenClippy and a DOOM face pack).",
   "license": "MIT",
   "keywords": [
     "dsh",
     "deepseek-harness",
     "plugin",
     "clippy",
-    "companion"
+    "doom",
+    "companion",
+    "presets"
   ],
   "exports": {
     ".": "./index.js",
@@ -24,9 +26,10 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.png",
-    "assets/*",
+    "assets/openclippy/*",
+    "assets/doom/*",
+    "tools/*",
     "LICENSE",
-    "LICENSE.assets",
     "README.md"
   ],
   "dsh": {

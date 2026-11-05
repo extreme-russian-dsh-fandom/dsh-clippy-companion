@@ -5,132 +5,149 @@ window.__ModuleLoader__.load({
     const h = React.createElement;
 
     const NS = 'clippy-companion';
-    const FRAME_W = 124;
-    const FRAME_H = 93;
     const MARGIN = 12;
     const TOP_INSET = 56;
-    const STORAGE_KEY = 'dsh.clippy-companion.position.v1';
-    const SPRITE_URL = '/clippy-companion/clippy-map.png';
-    const MANIFEST_URL = '/clippy-companion/sprite-data.json';
     const BUBBLE_MS = 7000;
+    const LONG_PRESS_MS = 550;
+    const ASSET_BASE = '/clippy-companion/assets/';
+    const STORAGE_POSITION = 'dsh.clippy-companion.position.v1';
+    const STORAGE_PRESET = 'dsh.clippy-companion.preset.v1';
+    const DEFAULT_PRESET = 'openclippy';
 
-    // Idle loops are short and unobtrusive; the long sleep animations would
-    // make the companion look frozen, so they are left out.
-    const IDLE_ANIMATIONS = [
-      'Idle1_1',
-      'IdleSideToSide',
-      'IdleHeadScratch',
-      'IdleFingerTap',
-      'IdleEyeBrowRaise',
-      'IdleAtom',
-      'LookLeft',
-      'LookRight',
-      'LookUp',
-      'LookDown',
-      'LookUpLeft',
-      'LookUpRight',
-      'LookDownLeft',
-      'LookDownRight',
-    ];
-
-    const SPEECH = [
-      { key: 'line1', anim: 'Thinking' },
-      { key: 'line2', anim: 'Searching' },
-      { key: 'line3', anim: 'GestureLeft' },
-      { key: 'line4', anim: 'Congratulate' },
-      { key: 'line5', anim: 'Explain' },
-      { key: 'line6', anim: 'Alert' },
-      { key: 'line7', anim: 'Writing' },
-      { key: 'line8', anim: 'GetAttention' },
-      { key: 'line9', anim: 'CheckingSomething' },
-      { key: 'line10', anim: 'GetTechy' },
-      { key: 'line11', anim: 'GestureUp' },
-      { key: 'line12', anim: 'Hearing_1' },
-      { key: 'line13', anim: 'GestureRight' },
-      { key: 'line14', anim: 'Processing' },
-      { key: 'line15', anim: 'GetWizardy' },
-      { key: 'line16', anim: 'GestureDown' },
-      { key: 'line17', anim: 'Save' },
-      { key: 'line18', anim: 'Print' },
-      { key: 'line19', anim: 'SendMail' },
-      { key: 'line20', anim: 'Wave' },
+    // Adding a pack means adding its directory under assets/ and one row here.
+    const PRESETS = [
+      { id: 'openclippy', dir: 'openclippy' },
+      { id: 'doom', dir: 'doom' },
     ];
 
     const DICTS = {
       en: {
-        aria: 'Clippy companion. Drag to move. Press Enter for a comment.',
+        aria: 'Companion. Drag to move. Press Enter for a comment.',
         hint: 'Drag me — or press Enter to chat',
-        line1: "It looks like you're writing code. Want some help with that?",
-        line2: 'I found a semicolon hiding behind the sofa.',
-        line3: 'Drag me anywhere in the chat. I promise to stay out of the sidebar.',
-        line4: 'The tests pass. I checked twice.',
-        line5: 'Have you tried turning the tool call off and on again?',
-        line6: "I'm not saying it's a race condition, but it only happens sometimes.",
-        line7: "That's a nice commit message. Very descriptive.",
-        line8: "Would you like me to explain that stack trace? It's a long one.",
-        line9: "I see you're reading the docs. Bold move.",
-        line10: "Your token budget called. It's nervous.",
-        line11: 'Everything is under control. Probably.',
-        line12: "I can help! I just can't reach the keyboard.",
-        line13: 'Have you considered a smaller diff?',
-        line14: 'This is the part where I pretend to understand the regex.',
-        line15: "I've been standing here since the last deployment.",
-        line16: 'One does not simply merge into main on a Friday.',
-        line17: 'I like your workspace. Very... spacious.',
-        line18: 'Warning: I am 90% paperclip, 10% moral support.',
-        line19: "Shall we name the bug? I suggest 'Gerald'.",
-        line20: "You look like you could use a rubber duck. I'm close enough.",
+        menuTitle: 'Companion',
+        menuAria: 'Choose a companion',
+        settingsTitle: 'Companion',
+        settingsDescription: 'Character shown in the chat area.',
+        'preset.openclippy': 'Clippy',
+        'preset.doom': 'Doomguy',
+        'clippy.line1': "It looks like you're writing code. Want some help with that?",
+        'clippy.line2': 'I found a semicolon hiding behind the sofa.',
+        'clippy.line3': 'Drag me anywhere in the chat. I promise to stay out of the sidebar.',
+        'clippy.line4': 'The tests pass. I checked twice.',
+        'clippy.line5': 'Have you tried turning the tool call off and on again?',
+        'clippy.line6': "I'm not saying it's a race condition, but it only happens sometimes.",
+        'clippy.line7': "That's a nice commit message. Very descriptive.",
+        'clippy.line8': "Would you like me to explain that stack trace? It's a long one.",
+        'clippy.line9': "I see you're reading the docs. Bold move.",
+        'clippy.line10': "Your token budget called. It's nervous.",
+        'clippy.line11': 'Everything is under control. Probably.',
+        'clippy.line12': "I can help! I just can't reach the keyboard.",
+        'clippy.line13': 'Have you considered a smaller diff?',
+        'clippy.line14': 'This is the part where I pretend to understand the regex.',
+        'clippy.line15': "I've been standing here since the last deployment.",
+        'clippy.line16': 'One does not simply merge into main on a Friday.',
+        'clippy.line17': 'I like your workspace. Very... spacious.',
+        'clippy.line18': 'Warning: I am 90% paperclip, 10% moral support.',
+        'clippy.line19': "Shall we name the bug? I suggest 'Gerald'.",
+        'clippy.line20': "You look like you could use a rubber duck. I'm close enough.",
+        'doom.line1': 'Rip and tear... the TODOs.',
+        'doom.line2': "I've seen scarier stack traces.",
+        'doom.line3': 'Hurt me plenty. I can take a failed test.',
+        'doom.line4': 'That bug? Already dead.',
+        'doom.line5': 'Your diff is huge. That means your changes are huge.',
+        'doom.line6': 'Shotgun debugging works. Ship it.',
+        'doom.line7': 'No rest for the wicked. Or for CI.',
+        'doom.line8': "I'm too young to die. You're on your own.",
+        'doom.line9': 'This code is giving me BFG ideas.',
+        'doom.line10': 'You call that a merge conflict?',
+        'doom.line11': "I don't do pull requests. I do breaches.",
+        'doom.line12': 'Wake me when the build is green.',
       },
       ru: {
-        aria: 'Компаньон Клиппи. Перетащите, чтобы переместить. Нажмите Enter для комментария.',
+        aria: 'Компаньон. Перетащите, чтобы переместить. Нажмите Enter для комментария.',
         hint: 'Перетащите меня — или нажмите Enter',
-        line1: 'Похоже, вы пишете код. Нужна помощь?',
-        line2: 'Я нашёл точку с запятой за диваном.',
-        line3: 'Тащите меня куда угодно в чате. В сайдбар я не полезу.',
-        line4: 'Тесты проходят. Я проверил дважды.',
-        line5: 'Вы пробовали выключить и включить этот вызов инструмента?',
-        line6: 'Не то чтобы это была гонка, но происходит только иногда.',
-        line7: 'Отличное сообщение коммита. Очень описательное.',
-        line8: 'Хотите, объясню стектрейс? Он длинный.',
-        line9: 'Вижу, вы читаете документацию. Смелый ход.',
-        line10: 'Ваш бюджет токенов звонил. Он нервничает.',
-        line11: 'Всё под контролем. Наверное.',
-        line12: 'Я бы помог! Просто не дотягиваюсь до клавиатуры.',
-        line13: 'Может, сделать диф поменьше?',
-        line14: 'А вот здесь я делаю вид, что понимаю регулярку.',
-        line15: 'Я стою тут с прошлого деплоя.',
-        line16: 'Нельзя просто так взять и влить в main в пятницу.',
-        line17: 'Уютное у вас рабочее пространство. Просторное.',
-        line18: 'Предупреждение: я на 90% скрепка и на 10% моральная поддержка.',
-        line19: 'Давайте назовём баг. Предлагаю «Геральд».',
-        line20: 'Похоже, вам нужна резиновая уточка. Я почти подхожу.',
+        menuTitle: 'Компаньон',
+        menuAria: 'Выберите компаньона',
+        settingsTitle: 'Компаньон',
+        settingsDescription: 'Персонаж в области чата.',
+        'preset.openclippy': 'Клиппи',
+        'preset.doom': 'Думгай',
+        'clippy.line1': 'Похоже, вы пишете код. Нужна помощь?',
+        'clippy.line2': 'Я нашёл точку с запятой за диваном.',
+        'clippy.line3': 'Тащите меня куда угодно в чате. В сайдбар я не полезу.',
+        'clippy.line4': 'Тесты проходят. Я проверил дважды.',
+        'clippy.line5': 'Вы пробовали выключить и включить этот вызов инструмента?',
+        'clippy.line6': 'Не то чтобы это была гонка, но происходит только иногда.',
+        'clippy.line7': 'Отличное сообщение коммита. Очень описательное.',
+        'clippy.line8': 'Хотите, объясню стектрейс? Он длинный.',
+        'clippy.line9': 'Вижу, вы читаете документацию. Смелый ход.',
+        'clippy.line10': 'Ваш бюджет токенов звонил. Он нервничает.',
+        'clippy.line11': 'Всё под контролем. Наверное.',
+        'clippy.line12': 'Я бы помог! Просто не дотягиваюсь до клавиатуры.',
+        'clippy.line13': 'Может, сделать диф поменьше?',
+        'clippy.line14': 'А вот здесь я делаю вид, что понимаю регулярку.',
+        'clippy.line15': 'Я стою тут с прошлого деплоя.',
+        'clippy.line16': 'Нельзя просто так взять и влить в main в пятницу.',
+        'clippy.line17': 'Уютное у вас рабочее пространство. Просторное.',
+        'clippy.line18': 'Предупреждение: я на 90% скрепка и на 10% моральная поддержка.',
+        'clippy.line19': 'Давайте назовём баг. Предлагаю «Геральд».',
+        'clippy.line20': 'Похоже, вам нужна резиновая уточка. Я почти подхожу.',
+        'doom.line1': 'Рви и мечи… TODO.',
+        'doom.line2': 'Я видел стектрейсы и пострашнее.',
+        'doom.line3': 'Сделай мне больно. Проваленный тест я выдержу.',
+        'doom.line4': 'Этот баг? Уже мёртв.',
+        'doom.line5': 'Диф у тебя огромный. Значит, и изменения огромные.',
+        'doom.line6': 'Отладка дробовиком работает. Шипи.',
+        'doom.line7': 'Нет покоя злодеям. И CI.',
+        'doom.line8': 'Я слишком молод, чтобы умирать. Дальше сам.',
+        'doom.line9': 'Этот код наводит на мысли о BFG.',
+        'doom.line10': 'Ты называешь это конфликтом слияния?',
+        'doom.line11': 'Я не делаю пул-реквесты. Я делаю прорывы.',
+        'doom.line12': 'Разбуди, когда сборка станет зелёной.',
       },
     };
 
     const CSS = `
-.dscc-root{position:fixed;width:${FRAME_W}px;height:${FRAME_H}px;z-index:30;pointer-events:none}
+.dscc-root{position:fixed;z-index:30;pointer-events:none}
 .dscc-button{display:block;box-sizing:border-box;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:14px;background:transparent;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;outline:none}
 .dscc-root[data-dragging="true"] .dscc-button{cursor:grabbing}
 .dscc-button:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#247bbf);outline-offset:4px}
-.dscc-sprite{width:${FRAME_W}px;height:${FRAME_H}px;background-repeat:no-repeat;filter:drop-shadow(0 7px 11px rgba(0,0,0,.22));transition:transform 120ms ease,filter 120ms ease}
+.dscc-sprite{background-repeat:no-repeat;filter:drop-shadow(0 7px 11px rgba(0,0,0,.22));transition:transform 120ms ease,filter 120ms ease}
 .dscc-button:hover .dscc-sprite{transform:translateY(-1px);filter:drop-shadow(0 10px 14px rgba(0,0,0,.26))}
 .dscc-bubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(260px,calc(100vw - 32px));padding:9px 12px;border:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-radius:12px;background:var(--dsw-alias-bg-overlay,#fff);color:var(--dsw-alias-label-primary,#1b1b1d);box-shadow:0 10px 28px rgba(0,0,0,.22);font-family:var(--dsh-font-family-text,system-ui,-apple-system,"Segoe UI",sans-serif);font-size:12.5px;line-height:18px;text-align:left;pointer-events:auto;cursor:default}
 .dscc-bubbleBelow{top:calc(100% + 14px);bottom:auto}
 .dscc-tail{position:absolute;left:50%;bottom:-6px;width:12px;height:12px;margin-left:-6px;transform:rotate(45deg);background:var(--dsw-alias-bg-overlay,#fff);border-right:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-bottom:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16))}
 .dscc-bubbleBelow .dscc-tail{top:-6px;bottom:auto;border:0;border-left:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-top:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16))}
+.dscc-menu{position:absolute;z-index:6;box-sizing:border-box;width:210px;padding:6px;border:.5px solid var(--dsw-alias-border-l2,rgba(0,0,0,.16));border-radius:12px;background:var(--dsw-alias-bg-overlay,#fff);box-shadow:0 14px 34px rgba(0,0,0,.28);color:var(--dsw-alias-label-primary,#1b1b1d);font-family:var(--dsh-font-family-text,system-ui,-apple-system,"Segoe UI",sans-serif);pointer-events:auto}
+.dscc-menuTitle{padding:6px 8px 4px;font-size:10.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary,#6b7280))}
+.dscc-menuItem{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:7px 8px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:13px;line-height:20px;text-align:left;cursor:pointer}
+.dscc-menuItem:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
+.dscc-menuItem[aria-checked="true"]{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));font-weight:500}
+.dscc-menuItem:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#247bbf);outline-offset:-2px}
+.dscc-check{flex:none;color:var(--dsw-alias-brand-primary,#247bbf)}
+.dscc-checkEmpty{flex:none;width:14px;height:14px}
+.dscc-setting{display:flex;align-items:center;justify-content:space-between;gap:16px;box-sizing:border-box;min-height:40px;padding:10px 0}
+.dscc-settingText{min-width:0}
+.dscc-settingTitle{font-size:14px;line-height:22px;color:var(--dsw-alias-label-primary,#1b1b1d)}
+.dscc-settingDesc{margin-top:1px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary,#6b7280))}
+.dscc-segment{display:inline-flex;flex:none;border:.5px solid var(--dsw-alias-border-l3,var(--dsw-alias-border-l2,rgba(0,0,0,.16)));border-radius:8px;overflow:hidden}
+.dscc-segment button{height:32px;padding:0 12px;border:0;background:transparent;color:var(--dsw-alias-label-secondary,#4b5563);font-family:inherit;font-size:13px;line-height:20px;white-space:nowrap;cursor:pointer}
+.dscc-segment button+button{border-left:.5px solid var(--dsw-alias-border-l3,var(--dsw-alias-border-l2,rgba(0,0,0,.16)))}
+.dscc-segment button:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
+.dscc-segment button[aria-checked="true"]{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));color:var(--dsw-alias-label-primary,#1b1b1d);font-weight:500}
+.dscc-segment button:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#247bbf);outline-offset:-2px}
 @media (prefers-reduced-motion: reduce){.dscc-sprite,.dscc-button:hover .dscc-sprite{transition:none;transform:none}}
 `;
 
     const clamp = (value, min, max) => (value < min ? min : value > max ? max : value);
-    const clamp01 = (value) => clamp(value, 0, 1);
 
     function readFraction() {
       try {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
+        const raw = window.localStorage.getItem(STORAGE_POSITION);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (!parsed || !Number.isFinite(parsed.fx) || !Number.isFinite(parsed.fy)) return null;
-        return { fx: clamp01(parsed.fx), fy: clamp01(parsed.fy) };
+        return { fx: clamp(parsed.fx, 0, 1), fy: clamp(parsed.fy, 0, 1) };
       } catch (error) {
         return null;
       }
@@ -138,10 +155,48 @@ window.__ModuleLoader__.load({
 
     function persistFraction(fraction) {
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fraction));
+        window.localStorage.setItem(STORAGE_POSITION, JSON.stringify(fraction));
       } catch (error) {
         /* storage is optional */
       }
+    }
+
+    function readPresetId() {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_PRESET);
+        if (raw && PRESETS.some((preset) => preset.id === raw)) return raw;
+      } catch (error) {
+        /* storage is optional */
+      }
+      return DEFAULT_PRESET;
+    }
+
+    function persistPresetId(id) {
+      try {
+        window.localStorage.setItem(STORAGE_PRESET, id);
+      } catch (error) {
+        /* storage is optional */
+      }
+    }
+
+    function createPresetStore() {
+      let current = readPresetId();
+      const listeners = new Set();
+      return {
+        get() {
+          return current;
+        },
+        set(id) {
+          if (id === current || !PRESETS.some((preset) => preset.id === id)) return;
+          current = id;
+          persistPresetId(id);
+          for (const listener of listeners) listener();
+        },
+        subscribe(listener) {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+      };
     }
 
     function createBoundsStore() {
@@ -173,7 +228,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    function useBounds(store) {
+    function useStore(store) {
       const [value, setValue] = React.useState(() => store.get());
       React.useEffect(() => {
         setValue(store.get());
@@ -182,7 +237,63 @@ window.__ModuleLoader__.load({
       return value;
     }
 
-    /** Measures the chat column around its own slot entry; it renders nothing. */
+    async function fetchJson(url, options) {
+      const response = await fetch(url, { credentials: 'omit', ...(options || {}) });
+      if (!response.ok) throw new Error('HTTP ' + response.status + ' for ' + url);
+      return response.json();
+    }
+
+    const presetCache = new Map();
+
+    function loadPreset(meta) {
+      const cached = presetCache.get(meta.id);
+      if (cached) return cached;
+
+      const base = ASSET_BASE + meta.dir + '/';
+      const promise = (async () => {
+        const config = await fetchJson(base + 'preset.json', { cache: 'no-store' });
+        if (!config || typeof config !== 'object') throw new Error('invalid preset descriptor');
+        const suffix = '?v=' + encodeURIComponent(String(config.version || '1'));
+        const manifest = await fetchJson(
+          base + (config.manifest || 'sprite-data.json') + suffix,
+        );
+        if (
+          !manifest ||
+          !manifest.animations ||
+          !Number.isFinite(manifest.frameWidth) ||
+          !Number.isFinite(manifest.frameHeight)
+        ) {
+          throw new Error('invalid sprite manifest');
+        }
+        const scale =
+          Number.isFinite(config.scale) && config.scale > 0 ? config.scale : 1;
+        let sheetWidth = manifest.frameWidth;
+        let sheetHeight = manifest.frameHeight;
+        for (const animation of Object.values(manifest.animations)) {
+          for (const frame of animation.frames) {
+            sheetWidth = Math.max(sheetWidth, frame.position[0] + manifest.frameWidth);
+            sheetHeight = Math.max(sheetHeight, frame.position[1] + manifest.frameHeight);
+          }
+        }
+        return {
+          id: meta.id,
+          config,
+          manifest,
+          scale,
+          spriteUrl: base + (config.sprite || 'sprite.png') + suffix,
+          displayWidth: Math.round(manifest.frameWidth * scale),
+          displayHeight: Math.round(manifest.frameHeight * scale),
+          sheetWidth,
+          sheetHeight,
+        };
+      })();
+
+      presetCache.set(meta.id, promise);
+      promise.catch(() => presetCache.delete(meta.id));
+      return promise;
+    }
+
+    /** Measures the composed chat column around its own slot entry; renders nothing. */
     function ChatBoundsProbe({ bounds }) {
       const ref = React.useRef(null);
 
@@ -293,13 +404,37 @@ window.__ModuleLoader__.load({
       return frameIndex;
     }
 
-    function Companion({ bounds: boundsStore, translate: injectedTranslate, t }) {
-      const translate =
-        typeof t === 'function'
-          ? t
-          : typeof injectedTranslate === 'function'
-            ? injectedTranslate
-            : (key) => key;
+    function CheckIcon() {
+      return h(
+        'svg',
+        {
+          className: 'dscc-check',
+          width: 14,
+          height: 14,
+          viewBox: '0 0 16 16',
+          'aria-hidden': 'true',
+        },
+        h('path', {
+          d: 'M13 4.5 6.5 11 3 7.5',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 2,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        }),
+      );
+    }
+
+    function useTranslate(injectedTranslate, t) {
+      return typeof t === 'function'
+        ? t
+        : typeof injectedTranslate === 'function'
+          ? injectedTranslate
+          : (key) => key;
+    }
+
+    function Companion({ bounds: boundsStore, presetStore, translate: injectedTranslate, t }) {
+      const translate = useTranslate(injectedTranslate, t);
       const reducedMotion = React.useMemo(
         () =>
           typeof window.matchMedia === 'function' &&
@@ -307,22 +442,28 @@ window.__ModuleLoader__.load({
         [],
       );
 
-      const [manifest, setManifest] = React.useState(null);
+      const [assets, setAssets] = React.useState(null);
       const [spec, setSpec] = React.useState(null);
       const [line, setLine] = React.useState(null);
+      const [menuOpen, setMenuOpen] = React.useState(false);
       const [dragging, setDragging] = React.useState(false);
       const [fraction, setFractionState] = React.useState(
         () => readFraction() || { fx: 1, fy: 0.92 },
       );
-      const bounds = useBounds(boundsStore);
+
+      const bounds = useStore(boundsStore);
+      const presetId = useStore(presetStore);
 
       const fractionRef = React.useRef(fraction);
       const tokenRef = React.useRef(0);
       const lineTokenRef = React.useRef(0);
       const phaseRef = React.useRef('idle');
+      const restRef = React.useRef(null);
       const dragRef = React.useRef(null);
       const timersRef = React.useRef({ idle: 0, bubble: 0 });
       const geoRef = React.useRef(null);
+      const buttonRef = React.useRef(null);
+      const menuRef = React.useRef(null);
 
       const setFraction = (next) => {
         fractionRef.current = next;
@@ -338,37 +479,55 @@ window.__ModuleLoader__.load({
 
       React.useEffect(() => {
         let cancelled = false;
-        new Image().src = SPRITE_URL; /* warm the sheet before the first frame */
-        fetch(MANIFEST_URL, { credentials: 'omit' })
-          .then((response) => {
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            return response.json();
-          })
-          .then((data) => {
+        setAssets(null);
+        setSpec(null);
+        setLine(null);
+        const meta = PRESETS.find((preset) => preset.id === presetId);
+        if (!meta) return undefined;
+        loadPreset(meta)
+          .then((loaded) => {
             if (cancelled) return;
-            if (!data || !data.animations || !data.animations.Greeting) {
-              throw new Error('unexpected sprite manifest');
-            }
-            setManifest(data);
+            new Image().src = loaded.spriteUrl;
+            setAssets(loaded);
           })
           .catch((error) => {
-            console.error('[clippy-companion] cannot load the sprite manifest:', error);
+            if (cancelled) return;
+            console.error('[clippy-companion] cannot load preset "' + presetId + '":', error);
+            if (presetId !== DEFAULT_PRESET) presetStore.set(DEFAULT_PRESET);
           });
         return () => {
           cancelled = true;
         };
-      }, []);
+      }, [presetId, presetStore]);
 
       React.useEffect(() => {
-        if (!manifest) return;
+        if (!assets) return;
+        clearTimer('idle');
+        clearTimer('bubble');
+        setMenuOpen(false);
+        setLine(null);
+        setSpec(null);
+        phaseRef.current = 'idle';
+
+        const animations = assets.manifest.animations;
+        const rest =
+          assets.config.rest && animations[assets.config.rest]
+            ? assets.config.rest
+            : Object.keys(animations)[0];
+        restRef.current = rest;
+
         if (reducedMotion) {
-          phaseRef.current = 'idle';
-          setSpec({ name: 'RestPose', token: ++tokenRef.current });
+          setSpec({ name: rest, token: ++tokenRef.current });
           return;
         }
-        phaseRef.current = 'intro';
-        setSpec({ name: 'Greeting', token: ++tokenRef.current });
-      }, [manifest, reducedMotion]);
+        const greeting = assets.config.greeting;
+        if (greeting && animations[greeting]) {
+          phaseRef.current = 'intro';
+          setSpec({ name: greeting, token: ++tokenRef.current });
+        } else {
+          scheduleIdle(400);
+        }
+      }, [assets, reducedMotion]);
 
       React.useEffect(
         () => () => {
@@ -378,12 +537,36 @@ window.__ModuleLoader__.load({
         [],
       );
 
+      React.useEffect(() => {
+        if (!menuOpen) return undefined;
+        const onPointerDown = (event) => {
+          if (menuRef.current && menuRef.current.contains(event.target)) return;
+          setMenuOpen(false);
+        };
+        const onKeyDown = (event) => {
+          if (event.key === 'Escape') setMenuOpen(false);
+        };
+        document.addEventListener('pointerdown', onPointerDown, true);
+        document.addEventListener('keydown', onKeyDown);
+        return () => {
+          document.removeEventListener('pointerdown', onPointerDown, true);
+          document.removeEventListener('keydown', onKeyDown);
+        };
+      }, [menuOpen]);
+
       const scheduleIdle = (delay) => {
         clearTimer('idle');
-        if (reducedMotion) return;
+        if (reducedMotion || !assets) return;
         timersRef.current.idle = window.setTimeout(() => {
-          if (!manifest) return;
-          const name = IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)];
+          if (!assets) return;
+          const animations = assets.manifest.animations;
+          const list = Array.isArray(assets.config.idle)
+            ? assets.config.idle.filter((name) => animations[name])
+            : [];
+          const name = list.length
+            ? list[Math.floor(Math.random() * list.length)]
+            : restRef.current;
+          if (!name) return;
           phaseRef.current = 'idle';
           setSpec({ name, token: ++tokenRef.current });
         }, delay);
@@ -401,30 +584,26 @@ window.__ModuleLoader__.load({
         }
       };
 
-      const frameIndex = useSpriteFrame(manifest, spec, handleAnimationEnd);
-
-      const sheetSize = React.useMemo(() => {
-        let width = FRAME_W;
-        let height = FRAME_H;
-        if (manifest) {
-          for (const candidate of Object.values(manifest.animations)) {
-            for (const item of candidate.frames) {
-              width = Math.max(width, item.position[0] + FRAME_W);
-              height = Math.max(height, item.position[1] + FRAME_H);
-            }
-          }
-        }
-        return { width, height };
-      }, [manifest]);
+      const frameIndex = useSpriteFrame(
+        assets ? assets.manifest : null,
+        spec,
+        handleAnimationEnd,
+      );
 
       const speak = () => {
-        if (!manifest) return;
-        const entry = SPEECH[Math.floor(Math.random() * SPEECH.length)];
-        const animation = manifest.animations[entry.anim] ? entry.anim : 'GestureUp';
+        if (!assets) return;
+        const animations = assets.manifest.animations;
+        const entries = Array.isArray(assets.config.speech)
+          ? assets.config.speech.filter(
+              (entry) => entry && typeof entry.key === 'string' && animations[entry.anim],
+            )
+          : [];
+        if (!entries.length) return;
+        const entry = entries[Math.floor(Math.random() * entries.length)];
         clearTimer('idle');
         clearTimer('bubble');
         phaseRef.current = 'react';
-        setSpec({ name: animation, token: ++tokenRef.current });
+        setSpec({ name: entry.anim, token: ++tokenRef.current });
         lineTokenRef.current += 1;
         setLine({ key: entry.key, text: translate(entry.key) });
         timersRef.current.bubble = window.setTimeout(() => setLine(null), BUBBLE_MS);
@@ -446,21 +625,29 @@ window.__ModuleLoader__.load({
         persistFraction(next);
       };
 
-      if (!manifest || !bounds) return null;
+      if (!assets || !bounds) return null;
 
+      const width = assets.displayWidth;
+      const height = assets.displayHeight;
+      const scale = assets.scale;
       const geo = {
         minX: bounds.left + MARGIN,
-        maxX: Math.max(bounds.left + MARGIN, bounds.right - FRAME_W - MARGIN),
+        maxX: Math.max(bounds.left + MARGIN, bounds.right - width - MARGIN),
         minY: bounds.top + MARGIN,
-        maxY: Math.max(bounds.top + MARGIN, bounds.bottom - FRAME_H - MARGIN),
+        maxY: Math.max(bounds.top + MARGIN, bounds.bottom - height - MARGIN),
       };
       geoRef.current = geo;
 
       const x = geo.minX + (geo.maxX - geo.minX) * fraction.fx;
       const y = geo.minY + (geo.maxY - geo.minY) * fraction.fy;
-      const animation = spec ? manifest.animations[spec.name] : null;
+      const animation = spec ? assets.manifest.animations[spec.name] : null;
       const frames = animation ? animation.frames : [];
       const frame = frames.length ? frames[Math.min(frameIndex, frames.length - 1)] : null;
+
+      const openMenu = () => {
+        setLine(null);
+        setMenuOpen(true);
+      };
 
       const onPointerDown = (event) => {
         if (event.pointerType === 'mouse' && event.button !== 0) return;
@@ -470,14 +657,23 @@ window.__ModuleLoader__.load({
         } catch (error) {
           /* capture is best-effort */
         }
-        dragRef.current = {
+        const drag = {
           pointerId: event.pointerId,
           startX: event.clientX,
           startY: event.clientY,
           originX: x,
           originY: y,
           moved: false,
+          suppressClick: false,
+          longPress: 0,
         };
+        if (event.pointerType !== 'mouse') {
+          drag.longPress = window.setTimeout(() => {
+            drag.suppressClick = true;
+            openMenu();
+          }, LONG_PRESS_MS);
+        }
+        dragRef.current = drag;
         setDragging(true);
         try {
           button.focus({ preventScroll: true });
@@ -494,6 +690,10 @@ window.__ModuleLoader__.load({
         const dy = event.clientY - drag.startY;
         if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
         drag.moved = true;
+        if (drag.longPress) {
+          window.clearTimeout(drag.longPress);
+          drag.longPress = 0;
+        }
         const rangeX = geo.maxX - geo.minX;
         const rangeY = geo.maxY - geo.minY;
         const nx = clamp(drag.originX + dx, geo.minX, geo.maxX);
@@ -504,9 +704,10 @@ window.__ModuleLoader__.load({
         });
       };
 
-      const onPointerUp = (event) => {
+      const finishPointer = (event, cancelled) => {
         const drag = dragRef.current;
         if (!drag || drag.pointerId !== event.pointerId) return;
+        if (drag.longPress) window.clearTimeout(drag.longPress);
         dragRef.current = null;
         setDragging(false);
         try {
@@ -514,22 +715,23 @@ window.__ModuleLoader__.load({
         } catch (error) {
           /* capture is best-effort */
         }
+        if (cancelled) {
+          if (drag.moved) persistFraction(fractionRef.current);
+          return;
+        }
         if (drag.moved) {
           persistFraction(fractionRef.current);
-        } else {
+        } else if (!drag.suppressClick) {
           speak();
         }
       };
 
-      const onPointerCancel = (event) => {
-        const drag = dragRef.current;
-        if (!drag || drag.pointerId !== event.pointerId) return;
-        dragRef.current = null;
-        setDragging(false);
-        if (drag.moved) persistFraction(fractionRef.current);
-      };
-
       const onKeyDown = (event) => {
+        if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+          event.preventDefault();
+          openMenu();
+          return;
+        }
         const step = event.shiftKey ? 48 : 12;
         let dx = 0;
         let dy = 0;
@@ -548,14 +750,15 @@ window.__ModuleLoader__.load({
           return;
         }
         if (event.key === 'Escape') {
-          setLine(null);
+          if (menuOpen) setMenuOpen(false);
+          else setLine(null);
         }
       };
 
       const hint = translate('hint');
       const bubbleBelow = y - bounds.top < 120;
       const bubbleStyle = {};
-      const center = x + FRAME_W / 2;
+      const center = x + width / 2;
       if (center + 140 > bounds.right - 4) {
         bubbleStyle.left = 'auto';
         bubbleStyle.right = '0px';
@@ -565,41 +768,107 @@ window.__ModuleLoader__.load({
         bubbleStyle.transform = 'none';
       }
 
+      const menuWidth = 210;
+      const menuLeft =
+        clamp(center - menuWidth / 2, bounds.left + 8, bounds.right - menuWidth - 8) - x;
+      const menuStyle = { left: Math.round(menuLeft) + 'px' };
+      if (y - bounds.top < 170) menuStyle.top = 'calc(100% + 10px)';
+      else menuStyle.bottom = 'calc(100% + 10px)';
+
+      const menu = menuOpen
+        ? h(
+            'div',
+            {
+              key: 'menu',
+              ref: menuRef,
+              className: 'dscc-menu',
+              style: menuStyle,
+              role: 'menu',
+              'aria-label': translate('menuAria'),
+              onContextMenu: (event) => event.preventDefault(),
+            },
+            [
+              h('div', { key: 'title', className: 'dscc-menuTitle' }, translate('menuTitle')),
+              ...PRESETS.map((meta) => {
+                const current = meta.id === presetId;
+                return h(
+                  'button',
+                  {
+                    key: meta.id,
+                    type: 'button',
+                    className: 'dscc-menuItem',
+                    role: 'menuitemradio',
+                    'aria-checked': current ? 'true' : 'false',
+                    onClick: () => {
+                      presetStore.set(meta.id);
+                      setMenuOpen(false);
+                    },
+                  },
+                  [
+                    h('span', { key: 'label' }, translate('preset.' + meta.id)),
+                    current
+                      ? h(CheckIcon, { key: 'check' })
+                      : h('span', { key: 'space', className: 'dscc-checkEmpty' }),
+                  ],
+                );
+              }),
+            ],
+          )
+        : null;
+
       return h(
         'div',
         {
           className: 'dscc-root',
           'data-dragging': dragging ? 'true' : 'false',
-          style: { left: Math.round(x) + 'px', top: Math.round(y) + 'px' },
+          style: {
+            left: Math.round(x) + 'px',
+            top: Math.round(y) + 'px',
+            width: width + 'px',
+            height: height + 'px',
+          },
         },
         [
-          h('style', { key: 'style' }, CSS),
           h(
             'button',
             {
               key: 'button',
+              ref: buttonRef,
               type: 'button',
               className: 'dscc-button',
               'aria-label': translate('aria'),
+              'aria-haspopup': 'menu',
+              'aria-expanded': menuOpen ? 'true' : 'false',
               title: hint,
               onPointerDown,
               onPointerMove,
-              onPointerUp,
-              onPointerCancel,
+              onPointerUp: (event) => finishPointer(event, false),
+              onPointerCancel: (event) => finishPointer(event, true),
               onKeyDown,
-              onContextMenu: (event) => event.preventDefault(),
+              onContextMenu: (event) => {
+                event.preventDefault();
+                openMenu();
+              },
             },
             h('div', {
               className: 'dscc-sprite',
               'aria-hidden': 'true',
               style: frame
                 ? {
-                    backgroundImage: 'url("' + SPRITE_URL + '")',
-                    backgroundSize: sheetSize.width + 'px ' + sheetSize.height + 'px',
+                    width: width + 'px',
+                    height: height + 'px',
+                    backgroundImage: 'url("' + assets.spriteUrl + '")',
+                    backgroundSize:
+                      assets.sheetWidth * scale + 'px ' + assets.sheetHeight * scale + 'px',
                     backgroundPosition:
-                      -frame.position[0] + 'px ' + -frame.position[1] + 'px',
+                      -frame.position[0] * scale + 'px ' + -frame.position[1] * scale + 'px',
+                    imageRendering: assets.config.pixelated ? 'pixelated' : 'auto',
                   }
-                : { visibility: 'hidden' },
+                : {
+                    width: width + 'px',
+                    height: height + 'px',
+                    visibility: 'hidden',
+                  },
             }),
           ),
           line
@@ -617,8 +886,47 @@ window.__ModuleLoader__.load({
                 h('span', { key: 'tail', className: 'dscc-tail', 'aria-hidden': 'true' }),
               )
             : null,
+          menu,
         ],
       );
+    }
+
+    function CompanionSettings({ presetStore, translate: injectedTranslate, t }) {
+      const translate = useTranslate(injectedTranslate, t);
+      const current = useStore(presetStore);
+
+      return h('div', { className: 'dscc-setting' }, [
+        h('div', { key: 'text', className: 'dscc-settingText' }, [
+          h('div', { key: 'title', className: 'dscc-settingTitle' }, translate('settingsTitle')),
+          h(
+            'div',
+            { key: 'desc', className: 'dscc-settingDesc' },
+            translate('settingsDescription'),
+          ),
+        ]),
+        h(
+          'div',
+          {
+            key: 'control',
+            className: 'dscc-segment',
+            role: 'radiogroup',
+            'aria-label': translate('menuAria'),
+          },
+          PRESETS.map((meta) =>
+            h(
+              'button',
+              {
+                key: meta.id,
+                type: 'button',
+                role: 'radio',
+                'aria-checked': meta.id === current ? 'true' : 'false',
+                onClick: () => presetStore.set(meta.id),
+              },
+              translate('preset.' + meta.id),
+            ),
+          ),
+        ),
+      ]);
     }
 
     function registerLocale(ctx) {
@@ -639,6 +947,7 @@ window.__ModuleLoader__.load({
       inject: ['slots', 'locale'],
       apply(ctx) {
         const bounds = createBoundsStore();
+        const presetStore = createPresetStore();
         let translate = null;
         try {
           translate = ctx.locale.bind(NS);
@@ -648,6 +957,14 @@ window.__ModuleLoader__.load({
 
         ctx.effect(() => registerLocale(ctx));
 
+        ctx.effect(() => {
+          const tag = document.createElement('style');
+          tag.dataset.plugin = '@local/dsh-clippy-companion';
+          tag.textContent = CSS;
+          document.head.appendChild(tag);
+          return () => tag.remove();
+        });
+
         ctx.slots.inject('shell.overlay', () =>
           ctx.slots.register(
             {
@@ -655,7 +972,7 @@ window.__ModuleLoader__.load({
               id: 'clippy-companion',
               order: 20,
               locale: NS,
-              inject: () => ({ bounds, translate }),
+              inject: () => ({ bounds, presetStore, translate }),
             },
             Companion,
           ),
@@ -670,6 +987,19 @@ window.__ModuleLoader__.load({
               inject: () => ({ bounds }),
             },
             ChatBoundsProbe,
+          ),
+        );
+
+        ctx.slots.inject('settings.general.item', () =>
+          ctx.slots.register(
+            {
+              name: 'settings.general.item',
+              id: 'clippy-companion',
+              order: 22,
+              locale: NS,
+              inject: () => ({ presetStore, translate }),
+            },
+            CompanionSettings,
           ),
         );
       },

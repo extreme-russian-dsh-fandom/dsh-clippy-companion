@@ -1,0 +1,3 @@
+# Doomguy face pack
+
+These sprites were initially distributed under shareware copies initially distributed by Id and I assume they can keep being distributed in a modified form. Copyrights still apply to Id though...

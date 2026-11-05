@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Clippy 伙伴",
-    "description": "在聊天区内可拖动的 Clippy 伙伴，使用 OpenClippy 精灵图播放动画。"
+    "description": "聊天区内可拖动的伙伴，支持切换精灵包：OpenClippy 的 Clippy 与 DOOM 状态栏头像包。"
   }
 }

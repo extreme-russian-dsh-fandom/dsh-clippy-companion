@@ -1,0 +1,221 @@
+{
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "animations": {
+    "Idle": {
+      "frames": [
+        {
+          "duration": 700,
+          "position": [
+            0,
+            0
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            32,
+            0
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            64,
+            0
+          ]
+        }
+      ]
+    },
+    "LookLeft": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            96,
+            0
+          ]
+        }
+      ]
+    },
+    "LookRight": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            160,
+            0
+          ]
+        }
+      ]
+    },
+    "Grin": {
+      "frames": [
+        {
+          "duration": 220,
+          "position": [
+            192,
+            0
+          ]
+        },
+        {
+          "duration": 220,
+          "position": [
+            0,
+            32
+          ]
+        },
+        {
+          "duration": 320,
+          "position": [
+            32,
+            32
+          ]
+        }
+      ]
+    },
+    "Pain": {
+      "frames": [
+        {
+          "duration": 150,
+          "position": [
+            64,
+            32
+          ]
+        },
+        {
+          "duration": 150,
+          "position": [
+            96,
+            32
+          ]
+        },
+        {
+          "duration": 260,
+          "position": [
+            128,
+            32
+          ]
+        }
+      ]
+    },
+    "Angry": {
+      "frames": [
+        {
+          "duration": 150,
+          "position": [
+            32,
+            64
+          ]
+        },
+        {
+          "duration": 150,
+          "position": [
+            64,
+            64
+          ]
+        },
+        {
+          "duration": 300,
+          "position": [
+            96,
+            64
+          ]
+        }
+      ]
+    },
+    "Rage": {
+      "frames": [
+        {
+          "duration": 130,
+          "position": [
+            128,
+            64
+          ]
+        },
+        {
+          "duration": 220,
+          "position": [
+            160,
+            64
+          ]
+        },
+        {
+          "duration": 130,
+          "position": [
+            128,
+            64
+          ]
+        }
+      ]
+    },
+    "Scream": {
+      "frames": [
+        {
+          "duration": 90,
+          "position": [
+            64,
+            128
+          ]
+        },
+        {
+          "duration": 90,
+          "position": [
+            96,
+            128
+          ]
+        },
+        {
+          "duration": 90,
+          "position": [
+            128,
+            128
+          ]
+        },
+        {
+          "duration": 120,
+          "position": [
+            160,
+            128
+          ]
+        },
+        {
+          "duration": 260,
+          "position": [
+            192,
+            128
+          ]
+        }
+      ]
+    },
+    "Dead": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            160,
+            160
+          ]
+        }
+      ]
+    },
+    "Wake": {
+      "frames": [
+        {
+          "duration": 260,
+          "position": [
+            192,
+            160
+          ]
+        },
+        {
+          "duration": 400,
+          "position": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  }
+}

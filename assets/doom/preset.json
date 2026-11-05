@@ -1,0 +1,26 @@
+{
+  "id": "doom",
+  "version": 4,
+  "sprite": "faces.png",
+  "manifest": "sprite-data.json",
+  "scale": 3,
+  "pixelated": true,
+  "greeting": "Wake",
+  "rest": "Idle",
+  "idle": ["Idle", "LookLeft", "Idle", "LookRight"],
+  "speech": [
+    { "key": "doom.line1", "anim": "Rage" },
+    { "key": "doom.line2", "anim": "Idle" },
+    { "key": "doom.line3", "anim": "Pain" },
+    { "key": "doom.line4", "anim": "Angry" },
+    { "key": "doom.line5", "anim": "Idle" },
+    { "key": "doom.line6", "anim": "Grin" },
+    { "key": "doom.line7", "anim": "Angry" },
+    { "key": "doom.line8", "anim": "Pain" },
+    { "key": "doom.line9", "anim": "Rage" },
+    { "key": "doom.line10", "anim": "Scream" },
+    { "key": "doom.line11", "anim": "Grin" },
+    { "key": "doom.line12", "anim": "Dead" }
+  ]
+}
+
