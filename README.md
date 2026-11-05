@@ -29,8 +29,10 @@ changes (sidebar collapse, right panel, window resize, composer growth).
   bloodied variant exists the healthy frame stays.
 - **Agent-aware.** During a turn the companion reflects thinking, the active
   tool (editing, reading, shell, or a generic tool), tool success or failure, a
-  pending decision, and the end of a turn. A speech bubble takes over briefly
-  and the activity animation resumes afterwards.
+  pending decision, a message queued for the next turn (a raised-hand beat, no
+  bubble), a tool call that runs past ten seconds (`IdleFingerTap`, or `Angry`
+  for Doomguy), and the end of a turn. A speech bubble takes over briefly and
+  the activity animation resumes afterwards.
 - **Meme faces.** The pack also carries 22 high-res Reddit meme faces, scaled
   down to the same 24×29 face size. Some have their own quote; otherwise one
   shows up at random between idle animations.
@@ -163,10 +165,10 @@ partway through.
   `/clippy-companion/assets/<pack>/...`, with traversal, extension and content
   type checks.
 - `client.js` (Client) registers a hidden probe in `conversation.input.dock`
-  that measures the chat column and forwards the `contextPressure` projection
-  and the session's activity (running, active tool, latest tool result, pending
-  input), the companion in `shell.overlay`, and a preference row in
-  `settings.general.item`.
+  that measures the chat column and forwards the `contextPressure` and `inbox`
+  projections plus the session's activity (running, active tool, latest tool
+  result, pending input, queued messages), the companion in `shell.overlay`, and
+  a preference row in `settings.general.item`.
 - Sprite frames are drawn by shifting `background-position` on the single
   sheet; timings come straight from each pack's `sprite-data.json`.
 

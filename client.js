@@ -13,6 +13,7 @@ window.__ModuleLoader__.load({
     const POKE_WINDOW_MS = 2200;
     const POKE_BUBBLE_MS = 4600;
     const DOUBLE_TAP_MS = 240;
+    const SLOW_TOOL_MS = 10000;
     const ASSET_BASE = '/clippy-companion/assets/';
     const STORAGE_POSITION = 'dsh.clippy-companion.position.v1';
     const STORAGE_PRESET = 'dsh.clippy-companion.preset.v1';
@@ -302,6 +303,7 @@ window.__ModuleLoader__.load({
       toolPhase: '',
       resultSeq: null,
       resultError: false,
+      queued: 0,
     };
 
     function createActivityStore() {
@@ -319,7 +321,8 @@ window.__ModuleLoader__.load({
             value.toolName === next.toolName &&
             value.toolPhase === next.toolPhase &&
             value.resultSeq === next.resultSeq &&
-            value.resultError === next.resultError
+            value.resultError === next.resultError &&
+            value.queued === next.queued
           ) {
             return;
           }
@@ -415,10 +418,11 @@ window.__ModuleLoader__.load({
     }
 
     function flashAnimation(assets, kind, tier) {
-      const candidates =
-        kind === 'error'
-          ? ['Alert', 'Pain', 'Dead', 'GetAttention']
-          : ['Congratulate', 'Grin', 'Wave'];
+      let candidates;
+      if (kind === 'error') candidates = ['Alert', 'Pain', 'Dead', 'GetAttention'];
+      else if (kind === 'slow') candidates = ['IdleFingerTap', 'GetWizardy', 'Angry', 'GetAttention'];
+      else if (kind === 'queue') candidates = ['GetAttention', 'Hearing_1', 'GestureUp', 'LookLeft'];
+      else candidates = ['Congratulate', 'Grin', 'Wave'];
       const base = firstAnimation(assets.manifest, candidates);
       return base ? resolveAnimationName(assets.manifest, base, tier) : null;
     }
@@ -501,6 +505,7 @@ window.__ModuleLoader__.load({
       const ref = React.useRef(null);
       const pressure =
         typeof useProjection === 'function' ? useProjection('contextPressure') : undefined;
+      const inbox = typeof useProjection === 'function' ? useProjection('inbox') : undefined;
       const session = typeof useSession === 'function' ? useSession((value) => value) : undefined;
       const trajectory =
         typeof useTrajectory === 'function' ? useTrajectory((value) => value) : undefined;
@@ -529,9 +534,31 @@ window.__ModuleLoader__.load({
         !!(input && input.pending) ||
         (!running && !!(lastEvent && lastEvent.kind === 'tool-call'));
 
+      // Messages sent while the turn runs land in the inbox projection, with a
+      // brief client-side window before the Host rows arrive.
+      const inboxRows =
+        inbox && Array.isArray(inbox['next-turn']) ? inbox['next-turn'].length : 0;
+      const pending = session && Array.isArray(session.pendingSubmissions)
+        ? session.pendingSubmissions
+        : [];
+      let queuedPending = 0;
+      for (const submission of pending) {
+        if (submission && submission.placement === 'queued') queuedPending += 1;
+      }
+      // The optimistic client row and the Host inbox row overlap for a moment.
+      const queued = Math.max(inboxRows, queuedPending);
+
       React.useEffect(() => {
-        activity.set({ running, waiting, toolName, toolPhase, resultSeq, resultError });
-      }, [running, waiting, toolName, toolPhase, resultSeq, resultError, activity]);
+        activity.set({
+          running,
+          waiting,
+          toolName,
+          toolPhase,
+          resultSeq,
+          resultError,
+          queued,
+        });
+      }, [running, waiting, toolName, toolPhase, resultSeq, resultError, queued, activity]);
 
       React.useEffect(() => {
         context.set(pressure || null);
@@ -731,6 +758,7 @@ window.__ModuleLoader__.load({
       const menuRef = React.useRef(null);
       const prevRunningRef = React.useRef(null);
       const lastResultSeqRef = React.useRef(null);
+      const lastQueuedRef = React.useRef(null);
       const resultBaselineRef = React.useRef(false);
       specRef.current = spec;
       lineRef.current = line;
@@ -1118,6 +1146,27 @@ window.__ModuleLoader__.load({
           token: ++flashTokenRef.current,
         });
       }, [assets, activity.resultSeq, activity.resultError, activity.waiting]);
+
+      React.useEffect(() => {
+        if (!assets || reducedMotion) return undefined;
+        if (!activity.toolName) return undefined;
+        // Fidget once when a single tool call runs unusually long.
+        const timer = window.setTimeout(() => {
+          setFlash({ kind: 'slow', token: ++flashTokenRef.current });
+        }, SLOW_TOOL_MS);
+        return () => window.clearTimeout(timer);
+      }, [assets, activity.toolName, activity.resultSeq, reducedMotion]);
+
+      React.useEffect(() => {
+        if (!assets || reducedMotion) return;
+        const count = activity.queued || 0;
+        const previous = lastQueuedRef.current;
+        lastQueuedRef.current = count;
+        if (previous === null) return;
+        if (count > previous) {
+          setFlash({ kind: 'queue', token: ++flashTokenRef.current });
+        }
+      }, [assets, activity.queued, reducedMotion]);
 
       React.useEffect(() => {
         if (reducedMotion) return;
