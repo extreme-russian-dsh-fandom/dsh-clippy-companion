@@ -62,6 +62,12 @@ window.__ModuleLoader__.load({
         'doom.line10': 'You call that a merge conflict?',
         'doom.line11': "I don't do pull requests. I do breaches.",
         'doom.line12': 'Wake me when the build is green.',
+        'doom.meme1': 'AAAAAAAAA. Sorry, that was the context window filling up.',
+        'doom.meme2': "I'm sure that regex is fine.",
+        'doom.meme3': 'Finally, a bug worth shooting.',
+        'doom.meme4': 'I cannot see the bug. The bug cannot see me.',
+        'doom.meme5': 'The context window is a lie.',
+        'doom.meme6': 'I brought a pumpkin to the code review.',
       },
       ru: {
         aria: 'Компаньон. Перетащите, чтобы переместить. Нажмите Enter для комментария.',
@@ -104,6 +110,12 @@ window.__ModuleLoader__.load({
         'doom.line10': 'Ты называешь это конфликтом слияния?',
         'doom.line11': 'Я не делаю пул-реквесты. Я делаю прорывы.',
         'doom.line12': 'Разбуди, когда сборка станет зелёной.',
+        'doom.meme1': 'ААААААА. Простите, это заполняется контекстное окно.',
+        'doom.meme2': 'Я уверен, эта регулярка в порядке.',
+        'doom.meme3': 'Наконец-то баг, который стоит пристрелить.',
+        'doom.meme4': 'Я не вижу баг. Баг не видит меня.',
+        'doom.meme5': 'Контекстное окно лжёт.',
+        'doom.meme6': 'Я принёс тыкву на код-ревью.',
       },
     };
 
@@ -228,6 +240,59 @@ window.__ModuleLoader__.load({
       };
     }
 
+    function createContextStore() {
+      let value = null;
+      const listeners = new Set();
+      return {
+        get() {
+          return value;
+        },
+        set(next) {
+          if (value === next) return;
+          if (
+            value &&
+            next &&
+            value.pressureTokens === next.pressureTokens &&
+            value.projectedTokens === next.projectedTokens &&
+            value.contextWindow === next.contextWindow
+          ) {
+            return;
+          }
+          value = next;
+          for (const listener of listeners) listener();
+        },
+        subscribe(listener) {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+      };
+    }
+
+    /** 0: healthy, 1: hurt, 2: badly hurt, from context pressure. */
+    function contextTier(pressure) {
+      if (!pressure) return 0;
+      const used = Number.isFinite(pressure.projectedTokens)
+        ? pressure.projectedTokens
+        : pressure.pressureTokens;
+      const capacity = pressure.contextWindow;
+      if (!Number.isFinite(used) || !Number.isFinite(capacity) || capacity <= 0) return 0;
+      const ratio = used / capacity;
+      if (ratio >= 0.65) return 2;
+      if (ratio >= 0.35) return 1;
+      return 0;
+    }
+
+    const DAMAGE_SUFFIXES = ['', 'Hurt', 'Bad'];
+
+    function resolveAnimationName(manifest, base, tier) {
+      if (!manifest || !base) return base;
+      for (let level = Math.min(tier, 2); level >= 0; level -= 1) {
+        const name = base + DAMAGE_SUFFIXES[level];
+        if (manifest.animations[name]) return name;
+      }
+      return base;
+    }
+
     function useStore(store) {
       const [value, setValue] = React.useState(() => store.get());
       React.useEffect(() => {
@@ -293,9 +358,15 @@ window.__ModuleLoader__.load({
       return promise;
     }
 
-    /** Measures the composed chat column around its own slot entry; renders nothing. */
-    function ChatBoundsProbe({ bounds }) {
+    /** Measures the chat column and forwards context pressure; renders nothing. */
+    function ChatBoundsProbe({ bounds, context, useProjection }) {
       const ref = React.useRef(null);
+      const pressure =
+        typeof useProjection === 'function' ? useProjection('contextPressure') : undefined;
+
+      React.useEffect(() => {
+        context.set(pressure || null);
+      }, [pressure, context]);
 
       React.useEffect(() => {
         const element = ref.current;
@@ -356,8 +427,9 @@ window.__ModuleLoader__.load({
           window.removeEventListener('resize', schedule);
           if (observer) observer.disconnect();
           bounds.set(null);
+          context.set(null);
         };
-      }, [bounds]);
+      }, [bounds, context]);
 
       return h('span', {
         ref,
@@ -433,7 +505,7 @@ window.__ModuleLoader__.load({
           : (key) => key;
     }
 
-    function Companion({ bounds: boundsStore, presetStore, translate: injectedTranslate, t }) {
+    function Companion({ bounds: boundsStore, context: contextStore, presetStore, translate: injectedTranslate, t }) {
       const translate = useTranslate(injectedTranslate, t);
       const reducedMotion = React.useMemo(
         () =>
@@ -453,12 +525,16 @@ window.__ModuleLoader__.load({
 
       const bounds = useStore(boundsStore);
       const presetId = useStore(presetStore);
+      const pressure = useStore(contextStore);
+      const tier = contextTier(pressure);
 
       const fractionRef = React.useRef(fraction);
       const tokenRef = React.useRef(0);
       const lineTokenRef = React.useRef(0);
       const phaseRef = React.useRef('idle');
-      const restRef = React.useRef(null);
+      const restBaseRef = React.useRef(null);
+      const tierRef = React.useRef(tier);
+      tierRef.current = tier;
       const dragRef = React.useRef(null);
       const timersRef = React.useRef({ idle: 0, bubble: 0 });
       const geoRef = React.useRef(null);
@@ -510,20 +586,26 @@ window.__ModuleLoader__.load({
         phaseRef.current = 'idle';
 
         const animations = assets.manifest.animations;
-        const rest =
+        const restBase =
           assets.config.rest && animations[assets.config.rest]
             ? assets.config.rest
             : Object.keys(animations)[0];
-        restRef.current = rest;
+        restBaseRef.current = restBase;
 
         if (reducedMotion) {
-          setSpec({ name: rest, token: ++tokenRef.current });
+          setSpec({
+            name: resolveAnimationName(assets.manifest, restBase, tierRef.current),
+            token: ++tokenRef.current,
+          });
           return;
         }
         const greeting = assets.config.greeting;
         if (greeting && animations[greeting]) {
           phaseRef.current = 'intro';
-          setSpec({ name: greeting, token: ++tokenRef.current });
+          setSpec({
+            name: resolveAnimationName(assets.manifest, greeting, tierRef.current),
+            token: ++tokenRef.current,
+          });
         } else {
           scheduleIdle(400);
         }
@@ -560,15 +642,27 @@ window.__ModuleLoader__.load({
         timersRef.current.idle = window.setTimeout(() => {
           if (!assets) return;
           const animations = assets.manifest.animations;
-          const list = Array.isArray(assets.config.idle)
-            ? assets.config.idle.filter((name) => animations[name])
+          const memes = Array.isArray(assets.config.memeIdle)
+            ? assets.config.memeIdle.filter((name) => animations[name])
             : [];
-          const name = list.length
-            ? list[Math.floor(Math.random() * list.length)]
-            : restRef.current;
-          if (!name) return;
+          const memeChance = Number(assets.config.memeChance);
+          let base;
+          if (memes.length && Number.isFinite(memeChance) && Math.random() < memeChance) {
+            base = memes[Math.floor(Math.random() * memes.length)];
+          } else {
+            const list = Array.isArray(assets.config.idle)
+              ? assets.config.idle.filter((name) => animations[name])
+              : [];
+            base = list.length
+              ? list[Math.floor(Math.random() * list.length)]
+              : restBaseRef.current;
+          }
+          if (!base) return;
           phaseRef.current = 'idle';
-          setSpec({ name, token: ++tokenRef.current });
+          setSpec({
+            name: resolveAnimationName(assets.manifest, base, tierRef.current),
+            token: ++tokenRef.current,
+          });
         }, delay);
       };
 
@@ -590,6 +684,11 @@ window.__ModuleLoader__.load({
         handleAnimationEnd,
       );
 
+      React.useEffect(() => {
+        if (!assets || reducedMotion) return;
+        if (phaseRef.current === 'idle') scheduleIdle(250);
+      }, [tier]);
+
       const speak = () => {
         if (!assets) return;
         const animations = assets.manifest.animations;
@@ -603,7 +702,10 @@ window.__ModuleLoader__.load({
         clearTimer('idle');
         clearTimer('bubble');
         phaseRef.current = 'react';
-        setSpec({ name: entry.anim, token: ++tokenRef.current });
+        setSpec({
+          name: resolveAnimationName(assets.manifest, entry.anim, tierRef.current),
+          token: ++tokenRef.current,
+        });
         lineTokenRef.current += 1;
         setLine({ key: entry.key, text: translate(entry.key) });
         timersRef.current.bubble = window.setTimeout(() => setLine(null), BUBBLE_MS);
@@ -947,6 +1049,7 @@ window.__ModuleLoader__.load({
       inject: ['slots', 'locale'],
       apply(ctx) {
         const bounds = createBoundsStore();
+        const context = createContextStore();
         const presetStore = createPresetStore();
         let translate = null;
         try {
@@ -972,7 +1075,7 @@ window.__ModuleLoader__.load({
               id: 'clippy-companion',
               order: 20,
               locale: NS,
-              inject: () => ({ bounds, presetStore, translate }),
+              inject: () => ({ bounds, context, presetStore, translate }),
             },
             Companion,
           ),
@@ -984,7 +1087,7 @@ window.__ModuleLoader__.load({
               name: 'conversation.input.dock',
               id: 'clippy-companion-probe',
               order: 90,
-              inject: () => ({ bounds }),
+              inject: () => ({ bounds, context }),
             },
             ChatBoundsProbe,
           ),

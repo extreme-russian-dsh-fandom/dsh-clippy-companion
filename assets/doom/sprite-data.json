@@ -27,6 +27,56 @@
         }
       ]
     },
+    "IdleHurt": {
+      "frames": [
+        {
+          "duration": 700,
+          "position": [
+            64,
+            32
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            96,
+            32
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            128,
+            32
+          ]
+        }
+      ]
+    },
+    "IdleBad": {
+      "frames": [
+        {
+          "duration": 700,
+          "position": [
+            160,
+            32
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            192,
+            32
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            0,
+            64
+          ]
+        }
+      ]
+    },
     "LookLeft": {
       "frames": [
         {
@@ -34,6 +84,28 @@
           "position": [
             96,
             0
+          ]
+        }
+      ]
+    },
+    "LookLeftHurt": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            64,
+            96
+          ]
+        }
+      ]
+    },
+    "LookLeftBad": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            96,
+            96
           ]
         }
       ]
@@ -49,24 +121,46 @@
         }
       ]
     },
+    "LookRightHurt": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            0,
+            128
+          ]
+        }
+      ]
+    },
+    "LookRightBad": {
+      "frames": [
+        {
+          "duration": 1200,
+          "position": [
+            32,
+            128
+          ]
+        }
+      ]
+    },
     "Grin": {
       "frames": [
         {
-          "duration": 220,
+          "duration": 240,
           "position": [
             192,
             0
           ]
         },
         {
-          "duration": 220,
+          "duration": 240,
           "position": [
             0,
             32
           ]
         },
         {
-          "duration": 320,
+          "duration": 240,
           "position": [
             32,
             32
@@ -74,26 +168,126 @@
         }
       ]
     },
+    "GrinHurt": {
+      "frames": [
+        {
+          "duration": 240,
+          "position": [
+            0,
+            160
+          ]
+        },
+        {
+          "duration": 240,
+          "position": [
+            32,
+            160
+          ]
+        },
+        {
+          "duration": 240,
+          "position": [
+            64,
+            160
+          ]
+        }
+      ]
+    },
+    "GrinBad": {
+      "frames": [
+        {
+          "duration": 240,
+          "position": [
+            64,
+            160
+          ]
+        },
+        {
+          "duration": 240,
+          "position": [
+            96,
+            160
+          ]
+        },
+        {
+          "duration": 240,
+          "position": [
+            128,
+            160
+          ]
+        }
+      ]
+    },
     "Pain": {
       "frames": [
         {
-          "duration": 150,
+          "duration": 160,
           "position": [
             64,
             32
           ]
         },
         {
-          "duration": 150,
+          "duration": 160,
           "position": [
             96,
             32
           ]
         },
         {
-          "duration": 260,
+          "duration": 160,
           "position": [
             128,
+            32
+          ]
+        }
+      ]
+    },
+    "PainHurt": {
+      "frames": [
+        {
+          "duration": 160,
+          "position": [
+            160,
+            32
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            192,
+            32
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            0,
+            64
+          ]
+        }
+      ]
+    },
+    "PainBad": {
+      "frames": [
+        {
+          "duration": 160,
+          "position": [
+            192,
+            32
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            0,
+            64
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            192,
             32
           ]
         }
@@ -102,23 +296,73 @@
     "Angry": {
       "frames": [
         {
-          "duration": 150,
+          "duration": 160,
           "position": [
             32,
             64
           ]
         },
         {
-          "duration": 150,
+          "duration": 160,
           "position": [
             64,
             64
           ]
         },
         {
-          "duration": 300,
+          "duration": 160,
           "position": [
             96,
+            64
+          ]
+        }
+      ]
+    },
+    "AngryHurt": {
+      "frames": [
+        {
+          "duration": 160,
+          "position": [
+            96,
+            64
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            128,
+            64
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            96,
+            64
+          ]
+        }
+      ]
+    },
+    "AngryBad": {
+      "frames": [
+        {
+          "duration": 160,
+          "position": [
+            160,
+            64
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            128,
+            64
+          ]
+        },
+        {
+          "duration": 160,
+          "position": [
+            160,
             64
           ]
         }
@@ -134,7 +378,7 @@
           ]
         },
         {
-          "duration": 220,
+          "duration": 130,
           "position": [
             160,
             64
@@ -149,40 +393,126 @@
         }
       ]
     },
+    "RageHurt": {
+      "frames": [
+        {
+          "duration": 130,
+          "position": [
+            160,
+            64
+          ]
+        },
+        {
+          "duration": 130,
+          "position": [
+            128,
+            64
+          ]
+        },
+        {
+          "duration": 130,
+          "position": [
+            160,
+            64
+          ]
+        }
+      ]
+    },
+    "RageBad": {
+      "frames": [
+        {
+          "duration": 130,
+          "position": [
+            160,
+            64
+          ]
+        }
+      ]
+    },
     "Scream": {
       "frames": [
         {
-          "duration": 90,
+          "duration": 95,
           "position": [
             64,
             128
           ]
         },
         {
-          "duration": 90,
+          "duration": 95,
           "position": [
             96,
             128
           ]
         },
         {
-          "duration": 90,
+          "duration": 95,
           "position": [
             128,
             128
           ]
         },
         {
-          "duration": 120,
+          "duration": 95,
           "position": [
             160,
             128
           ]
         },
         {
-          "duration": 260,
+          "duration": 95,
           "position": [
             192,
+            128
+          ]
+        }
+      ]
+    },
+    "ScreamHurt": {
+      "frames": [
+        {
+          "duration": 95,
+          "position": [
+            128,
+            128
+          ]
+        },
+        {
+          "duration": 95,
+          "position": [
+            160,
+            128
+          ]
+        },
+        {
+          "duration": 95,
+          "position": [
+            192,
+            128
+          ]
+        }
+      ]
+    },
+    "ScreamBad": {
+      "frames": [
+        {
+          "duration": 95,
+          "position": [
+            160,
+            128
+          ]
+        },
+        {
+          "duration": 95,
+          "position": [
+            192,
+            128
+          ]
+        },
+        {
+          "duration": 95,
+          "position": [
+            160,
             128
           ]
         }
@@ -191,7 +521,7 @@
     "Dead": {
       "frames": [
         {
-          "duration": 1200,
+          "duration": 1300,
           "position": [
             160,
             160
@@ -202,17 +532,277 @@
     "Wake": {
       "frames": [
         {
-          "duration": 260,
+          "duration": 300,
           "position": [
             192,
             160
           ]
         },
         {
-          "duration": 400,
+          "duration": 300,
           "position": [
             0,
             0
+          ]
+        }
+      ]
+    },
+    "WakeBad": {
+      "frames": [
+        {
+          "duration": 300,
+          "position": [
+            192,
+            160
+          ]
+        },
+        {
+          "duration": 300,
+          "position": [
+            160,
+            160
+          ]
+        }
+      ]
+    },
+    "Meme01": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            0,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme02": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            32,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme03": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            64,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme04": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            96,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme05": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            128,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme06": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            160,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme07": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            192,
+            192
+          ]
+        }
+      ]
+    },
+    "Meme08": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            0,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme09": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            32,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme10": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            64,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme11": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            96,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme12": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            128,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme13": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            160,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme14": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            192,
+            224
+          ]
+        }
+      ]
+    },
+    "Meme15": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            0,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme16": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            32,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme17": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            64,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme18": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            96,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme19": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            128,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme20": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            160,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme21": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            192,
+            256
+          ]
+        }
+      ]
+    },
+    "Meme22": {
+      "frames": [
+        {
+          "duration": 1600,
+          "position": [
+            0,
+            288
           ]
         }
       ]

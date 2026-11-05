@@ -2,10 +2,10 @@
 
 A draggable companion that lives inside the DeepSeek Harness chat area, with
 switchable sprite packs. Two packs ship in the box: **Clippy** (OpenClippy
-sprites) and **Doomguy** (the DOOM II status-bar faces). The drag area is
-measured from the conversation column itself, so the companion stays out of the
-sidebar and the presented-files panel and follows layout changes (sidebar
-collapse, right panel, window resize, composer growth).
+sprites) and **Doomguy** (DOOM II status-bar faces, meme faces included). The
+drag area is measured from the conversation column itself, so the companion
+stays out of the sidebar and the presented-files panel and follows layout
+changes (sidebar collapse, right panel, window resize, composer growth).
 
 ## Features
 
@@ -13,10 +13,17 @@ collapse, right panel, window resize, composer growth).
   The position is clamped to that column and saved in `localStorage`, so it
   survives reloads and adapts to a resized window.
 - **Presets.** Right-click the companion (or long-press on touch) to switch
-  between packs, or use **Settings в†’ General в†’ Companion**. The choice is
+  between packs, or use **Settings → General → Companion**. The choice is
   remembered.
 - **Per-preset voice.** Idle loops, greetings, reactions and the random lines
   all come from the pack's `preset.json`, including its own set of comments.
+- **Context damage.** The DOOM pack reads the live context pressure from the
+  token meter and picks a beaten-up variant of the current face once the window
+  fills: healthy below 35%, wounded from 35%, badly hurt from 65%. When no
+  bloodied variant exists the healthy frame stays.
+- **Meme faces.** The pack also carries 22 high-res Reddit meme faces, scaled
+  down to the same 24×29 face size. Some have their own quote; otherwise one
+  shows up at random between idle animations.
 - **Animated.** Idle loops, a greeting on load, and a reaction for every
   comment, all played at the frame durations declared by the sprite manifest.
 - **Talkative.** Click the companion (or press Enter while it has focus) to get
@@ -43,7 +50,7 @@ Plugins settings.
 
 ## Preset packs
 
-Each pack is a directory under `assets/` with four files:
+Each pack is a directory under `assets/` with the following files:
 
 ```
 assets/<pack>/
@@ -78,9 +85,25 @@ assets/<pack>/
 - `greeting` plays once after load, `rest` is used for reduced motion and as a
   fallback, `idle` is sampled at random between pauses, and `speech` maps a
   locale key to a reaction animation.
+- Optional `memeIdle` (animation names) and `memeChance` (0–1) make an idle loop
+  occasionally show a random joke face instead of the regular idle set.
+- Damage variants are ordinary manifest animations suffixed by tier:
+  `Angry`, `AngryHurt`, `AngryBad`. The client prefers the highest tier that
+  exists for the requested base name.
 - Add a pack by dropping its directory under `assets/` and adding one row to
   `PRESETS` in `client.js`. No Host change is needed: the asset route is a
   prefix over the whole directory.
+
+## Rebuilding the DOOM pack
+
+```
+python tools/build-doom-pack.py
+```
+
+The script keys the classic sheet, flood-fills the meme sheets' black
+backgrounds, scales meme faces into 24×29, packs every frame into 32×32 cells,
+and writes `faces.png` plus the damage-tier manifest. Run it from the repository
+root after changing any of the source sheets.
 
 ## How it works
 
@@ -88,8 +111,9 @@ assets/<pack>/
   `/clippy-companion/assets/<pack>/...`, with traversal, extension and content
   type checks.
 - `client.js` (Client) registers a hidden probe in `conversation.input.dock`
-  that measures the chat column, the companion in `shell.overlay`, and a
-  preference row in `settings.general.item`.
+  that measures the chat column and forwards the `contextPressure` projection,
+  the companion in `shell.overlay`, and a preference row in
+  `settings.general.item`.
 - Sprite frames are drawn by shifting `background-position` on the single
   sheet; timings come straight from each pack's `sprite-data.json`.
 
@@ -102,7 +126,7 @@ cordis.patch.yml    Bundle patch inserting the plugin row
 locale/             Plugin-manager display metadata (en, ru, zh)
 icon.png            Plugin icon cropped from the sprite sheet
 assets/openclippy/  clippy-map.png + sprite-data.json + MIT licence
-assets/doom/        faces.png + sprite-data.json + source sheet + notice
+assets/doom/        faces.png + sprite-data.json + classic + meme source sheets
 tools/              build-doom-pack.py (regenerates the DOOM sheet + manifest)
 ```
 
@@ -110,10 +134,10 @@ tools/              build-doom-pack.py (regenerates the DOOM sheet + manifest)
 
 Plugin code: MIT, see [LICENSE](LICENSE).
 
-- `assets/openclippy/`: MIT, В© 2026 OpenClippy Contributors, see
+- `assets/openclippy/`: MIT, © 2026 OpenClippy Contributors, see
   [assets/openclippy/LICENSE](assets/openclippy/LICENSE).
-- `assets/doom/`: the DOOM II status-bar faces are В© 1994 id Software LLC /
-  ZeniMax Media and are **not** covered by the MIT licence. They are included
-  for local, personal use; see [assets/doom/LICENSE.md](assets/doom/LICENSE.md)
-  before redistributing this directory or a package that contains it.
-
+- `assets/doom/`: the DOOM II status-bar faces are © 1994 id Software LLC /
+  ZeniMax Media and are **not** covered by the MIT licence. The meme faces come
+  from the Reddit posts listed in [assets/doom/LICENSE.md](assets/doom/LICENSE.md);
+  that file also records the shareware-distribution note. Review it before
+  redistributing this directory or a package that contains it.

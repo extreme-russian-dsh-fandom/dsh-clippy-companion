@@ -1,6 +1,6 @@
 {
   "id": "doom",
-  "version": 4,
+  "version": 5,
   "sprite": "faces.png",
   "manifest": "sprite-data.json",
   "scale": 3,
@@ -8,6 +8,12 @@
   "greeting": "Wake",
   "rest": "Idle",
   "idle": ["Idle", "LookLeft", "Idle", "LookRight"],
+  "memeIdle": [
+    "Meme01", "Meme02", "Meme03", "Meme04", "Meme05", "Meme06", "Meme07", "Meme08",
+    "Meme09", "Meme10", "Meme11", "Meme12", "Meme13", "Meme14", "Meme15", "Meme16",
+    "Meme17", "Meme18", "Meme19", "Meme20", "Meme21", "Meme22"
+  ],
+  "memeChance": 0.12,
   "speech": [
     { "key": "doom.line1", "anim": "Rage" },
     { "key": "doom.line2", "anim": "Idle" },
@@ -20,7 +26,12 @@
     { "key": "doom.line9", "anim": "Rage" },
     { "key": "doom.line10", "anim": "Scream" },
     { "key": "doom.line11", "anim": "Grin" },
-    { "key": "doom.line12", "anim": "Dead" }
+    { "key": "doom.line12", "anim": "Dead" },
+    { "key": "doom.meme1", "anim": "Meme04" },
+    { "key": "doom.meme2", "anim": "Meme05" },
+    { "key": "doom.meme3", "anim": "Meme08" },
+    { "key": "doom.meme4", "anim": "Meme13" },
+    { "key": "doom.meme5", "anim": "Meme16" },
+    { "key": "doom.meme6", "anim": "Meme19" }
   ]
 }
-
