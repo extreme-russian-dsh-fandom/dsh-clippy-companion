@@ -136,6 +136,11 @@ backgrounds, scales meme faces into 24×29, packs every frame into 32×32 cells,
 and writes `faces.png` plus the damage-tier manifest. Run it from the repository
 root after changing any of the source sheets.
 
+The classic sheet stores five health levels per expression (100/80/60/40/20
+percent), and the three damage tiers use 100/60/20. The build asserts that no
+generated animation mixes health levels, so a clip never changes bloodiness
+partway through.
+
 ## How it works
 
 - `index.js` (Host) exposes `assets/` read-only on

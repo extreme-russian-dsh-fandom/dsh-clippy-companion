@@ -32,21 +32,21 @@
         {
           "duration": 700,
           "position": [
-            64,
+            192,
+            0
+          ]
+        },
+        {
+          "duration": 700,
+          "position": [
+            0,
             32
           ]
         },
         {
           "duration": 700,
           "position": [
-            96,
-            32
-          ]
-        },
-        {
-          "duration": 700,
-          "position": [
-            128,
+            32,
             32
           ]
         }
@@ -77,13 +77,46 @@
         }
       ]
     },
+    "Angry": {
+      "frames": [
+        {
+          "duration": 800,
+          "position": [
+            32,
+            64
+          ]
+        }
+      ]
+    },
+    "AngryHurt": {
+      "frames": [
+        {
+          "duration": 800,
+          "position": [
+            96,
+            64
+          ]
+        }
+      ]
+    },
+    "AngryBad": {
+      "frames": [
+        {
+          "duration": 800,
+          "position": [
+            160,
+            64
+          ]
+        }
+      ]
+    },
     "LookLeft": {
       "frames": [
         {
           "duration": 1200,
           "position": [
-            96,
-            0
+            192,
+            64
           ]
         }
       ]
@@ -93,7 +126,7 @@
         {
           "duration": 1200,
           "position": [
-            64,
+            32,
             96
           ]
         }
@@ -115,8 +148,8 @@
         {
           "duration": 1200,
           "position": [
-            160,
-            0
+            128,
+            96
           ]
         }
       ]
@@ -126,8 +159,8 @@
         {
           "duration": 1200,
           "position": [
-            0,
-            128
+            192,
+            96
           ]
         }
       ]
@@ -143,27 +176,46 @@
         }
       ]
     },
+    "Scream": {
+      "frames": [
+        {
+          "duration": 650,
+          "position": [
+            64,
+            128
+          ]
+        }
+      ]
+    },
+    "ScreamHurt": {
+      "frames": [
+        {
+          "duration": 650,
+          "position": [
+            128,
+            128
+          ]
+        }
+      ]
+    },
+    "ScreamBad": {
+      "frames": [
+        {
+          "duration": 650,
+          "position": [
+            192,
+            128
+          ]
+        }
+      ]
+    },
     "Grin": {
       "frames": [
         {
-          "duration": 240,
-          "position": [
-            192,
-            0
-          ]
-        },
-        {
-          "duration": 240,
+          "duration": 800,
           "position": [
             0,
-            32
-          ]
-        },
-        {
-          "duration": 240,
-          "position": [
-            32,
-            32
+            160
           ]
         }
       ]
@@ -171,21 +223,7 @@
     "GrinHurt": {
       "frames": [
         {
-          "duration": 240,
-          "position": [
-            0,
-            160
-          ]
-        },
-        {
-          "duration": 240,
-          "position": [
-            32,
-            160
-          ]
-        },
-        {
-          "duration": 240,
+          "duration": 800,
           "position": [
             64,
             160
@@ -196,21 +234,7 @@
     "GrinBad": {
       "frames": [
         {
-          "duration": 240,
-          "position": [
-            64,
-            160
-          ]
-        },
-        {
-          "duration": 240,
-          "position": [
-            96,
-            160
-          ]
-        },
-        {
-          "duration": 240,
+          "duration": 800,
           "position": [
             128,
             160
@@ -221,24 +245,10 @@
     "Pain": {
       "frames": [
         {
-          "duration": 160,
+          "duration": 800,
           "position": [
-            64,
-            32
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            96,
-            32
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            128,
-            32
+            32,
+            64
           ]
         }
       ]
@@ -246,23 +256,9 @@
     "PainHurt": {
       "frames": [
         {
-          "duration": 160,
+          "duration": 800,
           "position": [
-            160,
-            32
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            192,
-            32
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            0,
+            96,
             64
           ]
         }
@@ -271,96 +267,7 @@
     "PainBad": {
       "frames": [
         {
-          "duration": 160,
-          "position": [
-            192,
-            32
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            0,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            192,
-            32
-          ]
-        }
-      ]
-    },
-    "Angry": {
-      "frames": [
-        {
-          "duration": 160,
-          "position": [
-            32,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            64,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            96,
-            64
-          ]
-        }
-      ]
-    },
-    "AngryHurt": {
-      "frames": [
-        {
-          "duration": 160,
-          "position": [
-            96,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            128,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            96,
-            64
-          ]
-        }
-      ]
-    },
-    "AngryBad": {
-      "frames": [
-        {
-          "duration": 160,
-          "position": [
-            160,
-            64
-          ]
-        },
-        {
-          "duration": 160,
-          "position": [
-            128,
-            64
-          ]
-        },
-        {
-          "duration": 160,
+          "duration": 800,
           "position": [
             160,
             64
@@ -371,24 +278,10 @@
     "Rage": {
       "frames": [
         {
-          "duration": 130,
+          "duration": 650,
           "position": [
-            128,
-            64
-          ]
-        },
-        {
-          "duration": 130,
-          "position": [
-            160,
-            64
-          ]
-        },
-        {
-          "duration": 130,
-          "position": [
-            128,
-            64
+            64,
+            128
           ]
         }
       ]
@@ -396,24 +289,10 @@
     "RageHurt": {
       "frames": [
         {
-          "duration": 130,
-          "position": [
-            160,
-            64
-          ]
-        },
-        {
-          "duration": 130,
+          "duration": 650,
           "position": [
             128,
-            64
-          ]
-        },
-        {
-          "duration": 130,
-          "position": [
-            160,
-            64
+            128
           ]
         }
       ]
@@ -421,98 +300,9 @@
     "RageBad": {
       "frames": [
         {
-          "duration": 130,
-          "position": [
-            160,
-            64
-          ]
-        }
-      ]
-    },
-    "Scream": {
-      "frames": [
-        {
-          "duration": 95,
-          "position": [
-            64,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            96,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            128,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            160,
-            128
-          ]
-        },
-        {
-          "duration": 95,
+          "duration": 650,
           "position": [
             192,
-            128
-          ]
-        }
-      ]
-    },
-    "ScreamHurt": {
-      "frames": [
-        {
-          "duration": 95,
-          "position": [
-            128,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            160,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            192,
-            128
-          ]
-        }
-      ]
-    },
-    "ScreamBad": {
-      "frames": [
-        {
-          "duration": 95,
-          "position": [
-            160,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            192,
-            128
-          ]
-        },
-        {
-          "duration": 95,
-          "position": [
-            160,
             128
           ]
         }
@@ -547,6 +337,24 @@
         }
       ]
     },
+    "WakeHurt": {
+      "frames": [
+        {
+          "duration": 300,
+          "position": [
+            192,
+            160
+          ]
+        },
+        {
+          "duration": 300,
+          "position": [
+            192,
+            0
+          ]
+        }
+      ]
+    },
     "WakeBad": {
       "frames": [
         {
@@ -560,7 +368,7 @@
           "duration": 300,
           "position": [
             160,
-            160
+            32
           ]
         }
       ]

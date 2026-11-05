@@ -226,43 +226,72 @@ def main():
             ]
         }
 
-    # base, hurt, bad frame indices for every damage-aware animation
-    damage = {
-        'Idle': ([0, 1, 2], [9, 10, 11], [12, 13, 14]),
-        'LookLeft': ([3], [23], [24]),
-        'LookRight': ([5], [28], [29]),
-        'Grin': ([6, 7, 8], [35, 36, 37], [37, 38, 39]),
-        'Pain': ([9, 10, 11], [12, 13, 14], [13, 14, 13]),
-        'Angry': ([15, 16, 17], [17, 18, 17], [19, 18, 19]),
-        'Rage': ([18, 19, 18], [19, 18, 19], [19]),
-        'Scream': ([30, 31, 32, 33, 34], [32, 33, 34], [33, 34, 33]),
-        'Dead': ([40], [40], [40]),
-        'Wake': ([41, 0], [41, 0], [41, 40]),
+    # Classic sheet layout (indices):
+    #   0-14   idle: five health levels (100/80/60/40/20), three frames each
+    #   15-19  ouch, one frame per health level
+    #   20-24  look left, 25-29 look right
+    #   30-34  scream, 35-39 grin
+    #   40     dead, 41 evil grin (special)
+    # A damage tier picks exactly one health column, so no animation mixes
+    # bloodiness levels.
+    expressions = {
+        'Idle': [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11], [12, 13, 14]],
+        'Angry': [[15], [16], [17], [18], [19]],
+        'LookLeft': [[20], [21], [22], [23], [24]],
+        'LookRight': [[25], [26], [27], [28], [29]],
+        'Scream': [[30], [31], [32], [33], [34]],
+        'Grin': [[35], [36], [37], [38], [39]],
     }
-    duration = {
+    durations = {
         'Idle': 700,
+        'Angry': 800,
         'LookLeft': 1200,
         'LookRight': 1200,
-        'Grin': 240,
-        'Pain': 160,
-        'Angry': 160,
-        'Rage': 130,
-        'Scream': 95,
-        'Dead': 1300,
-        'Wake': 300,
+        'Scream': 650,
+        'Grin': 800,
     }
+    tiers = (0, 2, 4)  # health 100%, 60%, 20%
+    suffixes = ('', 'Hurt', 'Bad')
+
+    health = {}
+    for level, frames in enumerate(expressions['Idle']):
+        for index in frames:
+            health[index] = level
+    for name in ('Angry', 'LookLeft', 'LookRight', 'Scream', 'Grin'):
+        for level, frames in enumerate(expressions[name]):
+            health[frames[0]] = level
+    health[40] = 4  # dead
 
     animations = {}
-    for name, tiers in damage.items():
-        base, hurt, bad = tiers
-        animations[name] = animation(base, duration[name])
-        if hurt != base:
-            animations[name + 'Hurt'] = animation(hurt, duration[name])
-        if bad != hurt:
-            animations[name + 'Bad'] = animation(bad, duration[name])
+    animation_indices = {}
+
+    def build(name, indices, duration):
+        animations[name] = animation(indices, duration)
+        animation_indices[name] = list(indices)
+
+    for name, levels in expressions.items():
+        for tier, level in enumerate(tiers):
+            build(name + suffixes[tier], levels[level], durations[name])
+
+    # Speech uses Pain/Rage as names; both reuse a canonical expression so they
+    # inherit the same health discipline.
+    for alias, source in (('Pain', 'Angry'), ('Rage', 'Scream')):
+        for suffix in suffixes:
+            build(alias + suffix, animation_indices[source + suffix], durations[source])
+
+    build('Dead', [40], 1300)
+    for tier, level in enumerate(tiers):
+        build('Wake' + suffixes[tier], [41, expressions['Idle'][level][0]], 300)
+
+    special = {41}
+    for name, indices in animation_indices.items():
+        levels = {health[index] for index in indices if index not in special}
+        if len(levels) > 1:
+            raise AssertionError(f'{name} mixes health levels {sorted(levels)}')
+    print(f'damage tiers use health columns {tiers} (100/60/20%)')
 
     for offset in range(len(memes)):
-        animations[f'Meme{offset + 1:02d}'] = animation([len(classic) + offset], 1600)
+        build(f'Meme{offset + 1:02d}', [len(classic) + offset], 1600)
 
     DATA.write_text(
         json.dumps(

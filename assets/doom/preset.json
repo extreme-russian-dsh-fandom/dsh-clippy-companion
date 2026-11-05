@@ -1,6 +1,6 @@
 {
   "id": "doom",
-  "version": 5,
+  "version": 6,
   "sprite": "faces.png",
   "manifest": "sprite-data.json",
   "scale": 3,
