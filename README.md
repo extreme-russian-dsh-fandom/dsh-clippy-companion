@@ -1,11 +1,17 @@
 # Clippy Companion for DSH
 
+**English** · [Русский](README.ru.md)
+
 A draggable companion that lives inside the DeepSeek Harness chat area, with
 switchable sprite packs. Two packs ship in the box: **Clippy** (OpenClippy
 sprites) and **Doomguy** (DOOM II status-bar faces, meme faces included). The
 drag area is measured from the conversation column itself, so the companion
 stays out of the sidebar and the presented-files panel and follows layout
 changes (sidebar collapse, right panel, window resize, composer growth).
+
+| Clippy | Doomguy |
+| --- | --- |
+| ![Clippy in the chat area](media/screenshot-clippy.png) | ![Doomguy with a speech bubble](media/screenshot-doom.png) |
 
 ## Features
 
@@ -38,15 +44,40 @@ changes (sidebar collapse, right panel, window resize, composer growth).
 
 ## Install
 
-This directory is the plugin package. Install it into the current profile with
-`plugin_manager`, action `install_bundle`, target equal to this directory:
+The package is a normal pnpm dependency, so a GitHub ref or a local checkout
+both work. In the Desktop app, use the **Plugins** page; from a shell (Windows,
+Linux, macOS):
 
-```
-plugin_manager install_bundle C:\Users\user\source\dsh-clippy-companion
+```sh
+# from GitHub
+dsh plugin --profile desktop add github:extreme-russian-dsh-fandom/dsh-clippy-companion
+
+# from a local checkout
+dsh plugin --profile desktop add C:\path\to\dsh-clippy-companion
+
+# same on Linux or macOS
+dsh plugin --profile desktop add /path/to/dsh-clippy-companion
 ```
 
-Then reload the Harness page. The plugin appears as **Clippy Companion** in the
-Plugins settings.
+Replace `desktop` with your profile name (`web`, `tui`, ...). `dsh plugin`
+forwards its arguments to pnpm, so `github:` is pnpm's GitHub shorthand; append
+`#<branch-or-commit>` to pin a revision. Repository:
+<https://github.com/extreme-russian-dsh-fandom/dsh-clippy-companion>.
+
+Installing a local directory links it, so later edits need only a plugin
+re-enable. Installing the GitHub spec copies the package: push first, then
+reinstall to pick up changes. No build step is needed.
+
+Restart the Harness, then reload the page. The plugin appears as **Clippy
+Companion** in the Plugins settings.
+
+## Uninstall
+
+Remove the bundle in the Harness **Plugins** page, or:
+
+```sh
+dsh plugin --profile desktop remove @local/dsh-clippy-companion
+```
 
 ## Preset packs
 
@@ -125,6 +156,7 @@ client.js           Client half: probe, companion, presets, menu, settings row
 cordis.patch.yml    Bundle patch inserting the plugin row
 locale/             Plugin-manager display metadata (en, ru, zh)
 icon.png            Plugin icon cropped from the sprite sheet
+media/              README screenshots (Clippy and Doomguy)
 assets/openclippy/  clippy-map.png + sprite-data.json + MIT licence
 assets/doom/        faces.png + sprite-data.json + classic + meme source sheets
 tools/              build-doom-pack.py (regenerates the DOOM sheet + manifest)

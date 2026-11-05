@@ -26,11 +26,13 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.png",
+    "media/*",
     "assets/openclippy/*",
     "assets/doom/*",
     "tools/*",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "README.ru.md"
   ],
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" },
