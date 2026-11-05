@@ -268,6 +268,44 @@ window.__ModuleLoader__.load({
       };
     }
 
+    const EMPTY_ACTIVITY = {
+      running: false,
+      waiting: false,
+      toolName: null,
+      toolPhase: '',
+      resultSeq: null,
+      resultError: false,
+    };
+
+    function createActivityStore() {
+      let value = EMPTY_ACTIVITY;
+      const listeners = new Set();
+      return {
+        get() {
+          return value;
+        },
+        set(next) {
+          if (value === next) return;
+          if (
+            value.running === next.running &&
+            value.waiting === next.waiting &&
+            value.toolName === next.toolName &&
+            value.toolPhase === next.toolPhase &&
+            value.resultSeq === next.resultSeq &&
+            value.resultError === next.resultError
+          ) {
+            return;
+          }
+          value = next;
+          for (const listener of listeners) listener();
+        },
+        subscribe(listener) {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+      };
+    }
+
     /** 0: healthy, 1: hurt, 2: badly hurt, from context pressure. */
     function contextTier(pressure) {
       if (!pressure) return 0;
@@ -291,6 +329,71 @@ window.__ModuleLoader__.load({
         if (manifest.animations[name]) return name;
       }
       return base;
+    }
+
+    const EDIT_TOOLS = new Set(['write', 'edit']);
+    const READ_TOOLS = new Set(['read', 'read_image', 'grep', 'glob']);
+    const SHELL_TOOLS = new Set(['bash', 'pwsh']);
+
+    function toolKind(name) {
+      if (!name) return 'tool';
+      if (EDIT_TOOLS.has(name)) return 'edit';
+      if (READ_TOOLS.has(name)) return 'read';
+      if (SHELL_TOOLS.has(name) || name.startsWith('terminal_') || name.startsWith('job_')) {
+        return 'shell';
+      }
+      return 'tool';
+    }
+
+    function firstAnimation(manifest, names) {
+      for (const name of names) {
+        if (manifest.animations[name]) return name;
+      }
+      return null;
+    }
+
+    function activityBase(assets, activity) {
+      if (!activity) return null;
+      if (activity.waiting) {
+        return firstAnimation(assets.manifest, [
+          'Hearing_1',
+          'GetAttention',
+          'LookLeft',
+          'LookRight',
+          'Idle',
+        ]);
+      }
+      if (activity.toolName) {
+        const kind = toolKind(activity.toolName);
+        if (kind === 'edit') {
+          return firstAnimation(assets.manifest, ['Writing', 'Save', 'Grin', 'Processing']);
+        }
+        if (kind === 'read') {
+          return firstAnimation(assets.manifest, ['Searching', 'LookDown', 'LookLeft', 'LookRight']);
+        }
+        if (kind === 'shell') {
+          return firstAnimation(assets.manifest, ['Print', 'GetWizardy', 'Scream', 'GetTechy']);
+        }
+        return firstAnimation(assets.manifest, ['Processing', 'GetTechy', 'Angry', 'Idle']);
+      }
+      if (activity.running) {
+        return firstAnimation(assets.manifest, ['Thinking', 'LookUp', 'Idle', 'LookLeft']);
+      }
+      return null;
+    }
+
+    function activityAnimation(assets, activity, tier) {
+      const base = activityBase(assets, activity);
+      return base ? resolveAnimationName(assets.manifest, base, tier) : null;
+    }
+
+    function flashAnimation(assets, kind, tier) {
+      const candidates =
+        kind === 'error'
+          ? ['Alert', 'Pain', 'Dead', 'GetAttention']
+          : ['Congratulate', 'Grin', 'Wave'];
+      const base = firstAnimation(assets.manifest, candidates);
+      return base ? resolveAnimationName(assets.manifest, base, tier) : null;
     }
 
     function useStore(store) {
@@ -359,10 +462,49 @@ window.__ModuleLoader__.load({
     }
 
     /** Measures the chat column and forwards context pressure; renders nothing. */
-    function ChatBoundsProbe({ bounds, context, useProjection }) {
+    function ChatBoundsProbe({
+      bounds,
+      context,
+      activity,
+      useProjection,
+      useSession,
+      useTrajectory,
+      useInput,
+    }) {
       const ref = React.useRef(null);
       const pressure =
         typeof useProjection === 'function' ? useProjection('contextPressure') : undefined;
+      const session = typeof useSession === 'function' ? useSession((value) => value) : undefined;
+      const trajectory =
+        typeof useTrajectory === 'function' ? useTrajectory((value) => value) : undefined;
+      const input = typeof useInput === 'function' ? useInput((value) => value) : undefined;
+
+      const running = !!(session && session.running);
+      const calls =
+        trajectory && Array.isArray(trajectory.runningCalls) ? trajectory.runningCalls : [];
+      const tool = calls.length ? calls[calls.length - 1] : null;
+      const events =
+        trajectory && Array.isArray(trajectory.eventNodes) ? trajectory.eventNodes : [];
+      const lastEvent = events.length ? events[events.length - 1] : null;
+      let lastResult = null;
+      for (let index = events.length - 1; index >= 0; index -= 1) {
+        if (events[index] && events[index].kind === 'tool-result') {
+          lastResult = events[index];
+          break;
+        }
+      }
+      const toolName = tool ? String(tool.name || '') : null;
+      const toolPhase = tool ? String(tool.phase || '') : '';
+      const resultSeq = lastResult && lastResult.seq !== undefined ? lastResult.seq : null;
+      const resultError = lastResult ? !!lastResult.isError : false;
+      // An approval or question pauses the turn with the call still unresolved.
+      const waiting =
+        !!(input && input.pending) ||
+        (!running && !!(lastEvent && lastEvent.kind === 'tool-call'));
+
+      React.useEffect(() => {
+        activity.set({ running, waiting, toolName, toolPhase, resultSeq, resultError });
+      }, [running, waiting, toolName, toolPhase, resultSeq, resultError, activity]);
 
       React.useEffect(() => {
         context.set(pressure || null);
@@ -505,7 +647,14 @@ window.__ModuleLoader__.load({
           : (key) => key;
     }
 
-    function Companion({ bounds: boundsStore, context: contextStore, presetStore, translate: injectedTranslate, t }) {
+    function Companion({
+      bounds: boundsStore,
+      context: contextStore,
+      activity: activityStore,
+      presetStore,
+      translate: injectedTranslate,
+      t,
+    }) {
       const translate = useTranslate(injectedTranslate, t);
       const reducedMotion = React.useMemo(
         () =>
@@ -517,6 +666,7 @@ window.__ModuleLoader__.load({
       const [assets, setAssets] = React.useState(null);
       const [spec, setSpec] = React.useState(null);
       const [line, setLine] = React.useState(null);
+      const [flash, setFlash] = React.useState(null);
       const [menuOpen, setMenuOpen] = React.useState(false);
       const [dragging, setDragging] = React.useState(false);
       const [fraction, setFractionState] = React.useState(
@@ -526,20 +676,30 @@ window.__ModuleLoader__.load({
       const bounds = useStore(boundsStore);
       const presetId = useStore(presetStore);
       const pressure = useStore(contextStore);
+      const activity = useStore(activityStore);
       const tier = contextTier(pressure);
+      const activityName = assets ? activityAnimation(assets, activity, tier) : null;
 
       const fractionRef = React.useRef(fraction);
       const tokenRef = React.useRef(0);
       const lineTokenRef = React.useRef(0);
+      const flashTokenRef = React.useRef(0);
       const phaseRef = React.useRef('idle');
       const restBaseRef = React.useRef(null);
       const tierRef = React.useRef(tier);
       tierRef.current = tier;
+      const activityNameRef = React.useRef(null);
+      activityNameRef.current = activityName;
+      const specRef = React.useRef(null);
       const dragRef = React.useRef(null);
-      const timersRef = React.useRef({ idle: 0, bubble: 0 });
+      const timersRef = React.useRef({ idle: 0, bubble: 0, flash: 0 });
       const geoRef = React.useRef(null);
       const buttonRef = React.useRef(null);
       const menuRef = React.useRef(null);
+      const prevRunningRef = React.useRef(null);
+      const lastResultSeqRef = React.useRef(null);
+      const resultBaselineRef = React.useRef(false);
+      specRef.current = spec;
 
       const setFraction = (next) => {
         fractionRef.current = next;
@@ -615,6 +775,7 @@ window.__ModuleLoader__.load({
         () => () => {
           clearTimer('idle');
           clearTimer('bubble');
+          clearTimer('flash');
         },
         [],
       );
@@ -666,13 +827,30 @@ window.__ModuleLoader__.load({
         }, delay);
       };
 
+      const beginActivity = (name) => {
+        clearTimer('idle');
+        phaseRef.current = 'activity';
+        setSpec({ name, token: ++tokenRef.current });
+      };
+
       const handleAnimationEnd = () => {
         if (phaseRef.current === 'react') {
           phaseRef.current = 'idle';
-          scheduleIdle(2200);
+          if (activityNameRef.current) beginActivity(activityNameRef.current);
+          else scheduleIdle(2200);
         } else if (phaseRef.current === 'intro') {
           phaseRef.current = 'idle';
-          scheduleIdle(700);
+          if (activityNameRef.current) beginActivity(activityNameRef.current);
+          else scheduleIdle(700);
+        } else if (phaseRef.current === 'activity') {
+          if (activityNameRef.current) {
+            setSpec({ name: activityNameRef.current, token: ++tokenRef.current });
+          } else {
+            phaseRef.current = 'idle';
+            scheduleIdle(1200);
+          }
+        } else if (phaseRef.current === 'flash') {
+          /* the flash timer decides what comes next */
         } else {
           scheduleIdle(1200 + Math.random() * 2600);
         }
@@ -688,6 +866,70 @@ window.__ModuleLoader__.load({
         if (!assets || reducedMotion) return;
         if (phaseRef.current === 'idle') scheduleIdle(250);
       }, [tier]);
+
+      React.useEffect(() => {
+        if (!assets) return undefined;
+        if (reducedMotion) {
+          setFlash(null);
+          return undefined;
+        }
+        if (!flash) return undefined;
+        const name = flashAnimation(assets, flash.kind, tierRef.current);
+        if (!name) {
+          setFlash(null);
+          return undefined;
+        }
+        clearTimer('idle');
+        phaseRef.current = 'flash';
+        setSpec({ name, token: ++tokenRef.current });
+        timersRef.current.flash = window.setTimeout(() => setFlash(null), 2400);
+        return () => clearTimer('flash');
+      }, [flash, assets]);
+
+      React.useEffect(() => {
+        if (!assets || reducedMotion) return;
+        if (!resultBaselineRef.current) {
+          resultBaselineRef.current = true;
+          lastResultSeqRef.current = activity.resultSeq;
+          return;
+        }
+        if (activity.resultSeq === null || activity.resultSeq === lastResultSeqRef.current) return;
+        lastResultSeqRef.current = activity.resultSeq;
+        if (activity.waiting) return;
+        setFlash({
+          kind: activity.resultError ? 'error' : 'success',
+          token: ++flashTokenRef.current,
+        });
+      }, [assets, activity.resultSeq, activity.resultError, activity.waiting]);
+
+      React.useEffect(() => {
+        if (reducedMotion) return;
+        const was = prevRunningRef.current;
+        prevRunningRef.current = activity.running;
+        if (was === true && activity.running === false && !activity.waiting) {
+          setFlash({ kind: 'done', token: ++flashTokenRef.current });
+        }
+      }, [activity.running, activity.waiting]);
+
+      React.useEffect(() => {
+        if (!assets || flash || reducedMotion) return;
+        if (!activityName) {
+          if (phaseRef.current === 'activity' || phaseRef.current === 'flash') {
+            phaseRef.current = 'idle';
+            scheduleIdle(300);
+          }
+          return;
+        }
+        if (phaseRef.current === 'intro' || phaseRef.current === 'react') return;
+        if (
+          phaseRef.current === 'activity' &&
+          specRef.current &&
+          specRef.current.name === activityName
+        ) {
+          return;
+        }
+        beginActivity(activityName);
+      }, [activityName, flash, assets]);
 
       const speak = () => {
         if (!assets) return;
@@ -1044,6 +1286,7 @@ window.__ModuleLoader__.load({
       ]);
     }
 
+
     function registerLocale(ctx) {
       const disposers = [];
       for (const [locale, dict] of Object.entries(DICTS)) {
@@ -1063,6 +1306,7 @@ window.__ModuleLoader__.load({
       apply(ctx) {
         const bounds = createBoundsStore();
         const context = createContextStore();
+        const activity = createActivityStore();
         const presetStore = createPresetStore();
         let translate = null;
         try {
@@ -1088,7 +1332,7 @@ window.__ModuleLoader__.load({
               id: 'clippy-companion',
               order: 20,
               locale: NS,
-              inject: () => ({ bounds, context, presetStore, translate }),
+              inject: () => ({ bounds, context, activity, presetStore, translate }),
             },
             Companion,
           ),
@@ -1100,7 +1344,7 @@ window.__ModuleLoader__.load({
               name: 'conversation.input.dock',
               id: 'clippy-companion-probe',
               order: 90,
-              inject: () => ({ bounds, context }),
+              inject: () => ({ bounds, context, activity }),
             },
             ChatBoundsProbe,
           ),
