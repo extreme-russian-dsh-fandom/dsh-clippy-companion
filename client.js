@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@local/dsh-clippy-companion',
+  id: 'dsh-clippy-companion',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -1603,7 +1603,7 @@ window.__ModuleLoader__.load({
 
         ctx.effect(() => {
           const tag = document.createElement('style');
-          tag.dataset.plugin = '@local/dsh-clippy-companion';
+          tag.dataset.plugin = 'dsh-clippy-companion';
           tag.textContent = CSS;
           document.head.appendChild(tag);
           return () => tag.remove();

@@ -86,7 +86,7 @@ Companion** in the Plugins settings.
 Remove the bundle in the Harness **Plugins** page, or:
 
 ```sh
-dsh plugin --profile desktop remove @local/dsh-clippy-companion
+dsh plugin --profile desktop remove dsh-clippy-companion
 ```
 
 ## Preset packs

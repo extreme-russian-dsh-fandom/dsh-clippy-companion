@@ -1,6 +1,6 @@
 {
-  "name": "@local/dsh-clippy-companion",
-  "version": "1.5.0",
+  "name": "dsh-clippy-companion",
+  "version": "1.5.1",
   "private": true,
   "type": "module",
   "description": "A draggable companion inside the DSH chat area with switchable sprite packs, meme faces, and context-pressure damage.",

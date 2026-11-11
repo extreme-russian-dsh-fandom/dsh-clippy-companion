@@ -87,7 +87,7 @@ Companion** в настройках плагинов.
 Удалите бандл на странице **Plugins** в Harness или командой:
 
 ```sh
-dsh plugin --profile desktop remove @local/dsh-clippy-companion
+dsh plugin --profile desktop remove dsh-clippy-companion
 ```
 
 ## Пресеты

@@ -1,4 +1,4 @@
 - insert:
     - id: clippy-companion
-      name: '@local/dsh-clippy-companion'
+      name: 'dsh-clippy-companion'
       config: {}
